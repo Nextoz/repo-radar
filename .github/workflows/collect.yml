@@ -9,7 +9,7 @@ permissions:
   contents: write # push snapshots to the data branch
 
 concurrency:
-  group: collect
+  group: data-write # shared by every workflow that pushes to the data branch
   cancel-in-progress: false
 
 jobs:

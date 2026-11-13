@@ -1,7 +1,9 @@
 # Working in this repository
 
-Read `docs/PLAN.md` first, then the open milestone in it. Log each finished
-version in `docs/ITERATIONS.md` and each design choice in `docs/DECISIONS.md`.
+Building a milestone? Read `docs/SPEC.md`: it holds the contracts between the
+pipeline stages, the work packages and the rules for working with subagents.
+`docs/PLAN.md` explains why the product exists. Log each finished version in
+`docs/ITERATIONS.md` and each design choice in `docs/DECISIONS.md`.
 
 - **Python 3.12+, standard library only** in `radar/` unless a decision in
   `docs/DECISIONS.md` says otherwise.
