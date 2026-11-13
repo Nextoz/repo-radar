@@ -133,6 +133,21 @@ def _merge(report: RunReport, fetched: Fetched) -> None:
     report.errors.extend(fetched.errors)
 
 
+def _describe(error: Exception) -> str:
+    return str(error) if isinstance(error, github.GitHubError) else f"{type(error).__name__}: {error}"
+
+
+def _keep_valid(nodes: list[Any], out: "Fetched", label: str) -> None:
+    """Normalize what can be normalized; one malformed node must not lose the page."""
+    for node in nodes or []:
+        if not node or not node.get("id"):
+            continue
+        try:
+            out.repos.append(normalize(node))
+        except (KeyError, TypeError, AttributeError) as error:
+            out.errors.append(f"{label}: unexpected repo shape ({_describe(error)})")
+
+
 def normalize(node: dict[str, Any]) -> dict[str, Any]:
     """Flatten one GraphQL repository node into the shape the store uses."""
     return {
@@ -213,13 +228,15 @@ def search_day(gql: Gql, day: str, pause: Callable[[float], None]) -> Fetched:
             out.note(data)
             result = data["search"]
             out.total = result["repositoryCount"]
-            out.repos.extend(normalize(node) for node in result["nodes"] if node and node.get("id"))
+            _keep_valid(result["nodes"], out, f"search {day}")
             if not result["pageInfo"]["hasNextPage"]:
                 break
             cursor = result["pageInfo"]["endCursor"]
             pause(PAUSE_SECONDS)
-    except github.GitHubError as error:
-        out.errors.append(f"search {day}: {error}")  # keep the pages already fetched
+    except Exception as error:  # noqa: BLE001 - a worker must never take the run down
+        # Covers failed calls and unexpected shapes such as `"search": null`.
+        # Pages fetched before the failure are kept.
+        out.errors.append(f"search {day}: {_describe(error)}")
     return out
 
 
@@ -244,32 +261,46 @@ def lookup_by_name(gql: Gql, names: list[str]) -> Fetched:
     )
     try:
         data, _errors = gql(query, variables)  # a missing repo is null plus an error: fine
-    except github.GitHubError as error:
-        out.errors.append(f"trending lookup: {error}")
+        out.note(data)
+        nodes = [node for key, node in data.items() if key != "rateLimit"]
+    except Exception as error:  # noqa: BLE001
+        out.errors.append(f"trending lookup: {_describe(error)}")
         return out
-    out.note(data)
-    out.repos = [
-        normalize(node)
-        for key, node in data.items()
-        if key != "rateLimit" and node and node.get("id")
-    ]
+    _keep_valid(nodes, out, "trending lookup")
     return out
 
 
 def refresh_batch(gql: Gql, batch: list[str]) -> Fetched:
     """Current counts for up to 100 known repos, and which of them are gone."""
     out = Fetched()
+    label = f"refresh batch starting {batch[0]}"
     try:
-        data, _errors = gql(NODES_QUERY, {"ids": batch})
-    except github.GitHubError as error:
-        out.errors.append(f"refresh batch starting {batch[0]}: {error}")
+        data, errors = gql(NODES_QUERY, {"ids": batch})
+        out.note(data)
+        nodes = data["nodes"]
+        if len(nodes) != len(batch):
+            raise ValueError(f"asked for {len(batch)} nodes, got {len(nodes)}")
+    except Exception as error:  # noqa: BLE001
+        out.errors.append(f"{label}: {_describe(error)}")
         return out
-    out.note(data)
-    for wanted, node in zip(batch, data["nodes"]):
+    # A repo is retired only when GitHub says NOT_FOUND for exactly that node.
+    # Any other empty answer (a timeout, a partial response) is a problem to
+    # report and retry next run, because retiring is permanent.
+    confirmed_missing = {
+        error["path"][1]
+        for error in errors
+        if error.get("type") == "NOT_FOUND"
+        and isinstance(error.get("path"), list)
+        and len(error["path"]) == 2
+        and error["path"][0] == "nodes"
+    }
+    for index, (wanted, node) in enumerate(zip(batch, nodes)):
         if node and node.get("id"):
-            out.repos.append(normalize(node))
+            _keep_valid([node], out, label)
+        elif index in confirmed_missing:
+            out.gone.append(wanted)  # deleted or made private
         else:
-            out.gone.append(wanted)  # deleted, made private, or no longer a repository
+            out.errors.append(f"{label}: no data for {wanted} and no NOT_FOUND; kept on the watchlist")
     return out
 
 

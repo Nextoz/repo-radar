@@ -27,16 +27,29 @@ def cmd_status(args: argparse.Namespace) -> int:
         return 1
     newest = snapshots[-1]
     age_hours = (datetime.now(timezone.utc) - store.snapshot_time(newest)).total_seconds() / 3600
-    rows = sum(1 for _ in store.read_jsonl(newest))
+    try:
+        rows = sum(1 for _ in store.read_jsonl(newest))
+    except (OSError, EOFError) as error:
+        print(f"status: UNREADABLE newest snapshot ({type(error).__name__})")
+        return 1
     runs = list(store.read_jsonl(data_dir / store.RUNS))
     failed = sum(1 for run in runs if not run.get("ok"))
     print(f"snapshots: {len(snapshots)}  newest: {newest.relative_to(data_dir).as_posix()}")
     print(f"newest age: {age_hours:.1f} h  rows: {rows}")
     print(f"watched repos: {len(store.load_registry(data_dir))}  gone: {len(store.load_gone(data_dir))}")
     print(f"runs: {len(runs)}  failed: {failed}")
-    healthy = age_hours <= args.max_age_hours and rows > 0
-    print("status: healthy" if healthy else f"status: STALE (older than {args.max_age_hours} h)")
-    return 0 if healthy else 1
+    last_run_ok = bool(runs) and bool(runs[-1].get("ok"))
+    fresh = 0 <= age_hours <= args.max_age_hours  # a snapshot from the future is a clock fault
+    if not fresh:
+        print(f"status: STALE (age {age_hours:.1f} h, limit {args.max_age_hours} h)")
+    elif rows == 0:
+        print("status: EMPTY newest snapshot")
+    elif not last_run_ok:
+        print("status: LAST RUN FAILED (see runs.jsonl)")
+    else:
+        print("status: healthy")
+        return 0
+    return 1
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator
@@ -30,20 +31,36 @@ def iso(moment: datetime) -> str:
 
 
 def read_jsonl(path: Path) -> Iterator[dict[str, Any]]:
+    # A line that is not valid JSON (a write cut short by a crash) is skipped,
+    # so one damaged line cannot stop every later run. A damaged gzip file raises.
     if not path.exists():
         return
     opener = gzip.open if path.suffix == ".gz" else open
     with opener(path, "rt", encoding="utf-8") as handle:
         for line in handle:
             line = line.strip()
-            if line:
-                yield json.loads(line)
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(row, dict):
+                yield row
 
 
 def append_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     count = 0
+    # If an earlier write was cut short, start on a fresh line so new rows stay readable.
+    needs_newline = False
+    if path.exists() and path.stat().st_size:
+        with open(path, "rb") as existing:
+            existing.seek(-1, os.SEEK_END)
+            needs_newline = existing.read(1) != b"\n"
     with open(path, "a", encoding="utf-8", newline="\n") as handle:
+        if needs_newline:
+            handle.write("\n")
         for row in rows:
             handle.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
             count += 1
@@ -51,11 +68,11 @@ def append_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> int:
 
 
 def load_registry(data_dir: Path) -> dict[str, dict[str, Any]]:
-    return {row["id"]: row for row in read_jsonl(data_dir / REGISTRY)}
+    return {row["id"]: row for row in read_jsonl(data_dir / REGISTRY) if "id" in row}
 
 
 def load_gone(data_dir: Path) -> set[str]:
-    return {row["id"] for row in read_jsonl(data_dir / GONE)}
+    return {row["id"] for row in read_jsonl(data_dir / GONE) if "id" in row}
 
 
 def snapshot_path(data_dir: Path, moment: datetime) -> Path:
@@ -66,11 +83,14 @@ def snapshot_path(data_dir: Path, moment: datetime) -> Path:
 def write_snapshot(data_dir: Path, moment: datetime, rows: Iterable[dict[str, Any]]) -> Path:
     path = snapshot_path(data_dir, moment)
     path.parent.mkdir(parents=True, exist_ok=True)
-    # mtime=0 keeps the gzip bytes identical for identical content.
-    with open(path, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as packed:
+    # Written under a temporary name and renamed, so a crash never leaves a
+    # half-written snapshot. mtime=0 keeps the bytes identical for identical content.
+    partial = path.with_name(path.name + ".partial")
+    with open(partial, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as packed:
         for row in rows:
             line = json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
             packed.write(line.encode("utf-8"))
+    os.replace(partial, path)
     return path
 
 
