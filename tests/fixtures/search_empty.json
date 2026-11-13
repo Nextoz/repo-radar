@@ -1,0 +1,21 @@
+{
+ "variables": {
+  "q": "created:2007-01-01 stars:>=10 sort:stars-desc"
+ },
+ "data": {
+  "search": {
+   "repositoryCount": 0,
+   "pageInfo": {
+    "hasNextPage": false,
+    "endCursor": null
+   },
+   "nodes": []
+  },
+  "rateLimit": {
+   "cost": 1,
+   "remaining": 4991,
+   "resetAt": "2026-11-13T19:11:22Z"
+  }
+ },
+ "errors": []
+}

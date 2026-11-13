@@ -1,0 +1,86 @@
+{
+ "variables": {
+  "o0": "alibaba",
+  "n0": "open-code-review",
+  "o1": "GoogleChrome",
+  "n1": "modern-web-guidance-src",
+  "o2": "openai",
+  "n2": "codex-security",
+  "o3": "github",
+  "n3": "this-repo-does-not-exist-radar"
+ },
+ "data": {
+  "r0": {
+   "id": "R_kgDOSgbPIg",
+   "nameWithOwner": "alibaba/open-code-review",
+   "stargazerCount": 50412,
+   "forkCount": 3742,
+   "createdAt": "2026-05-18T02:16:36Z",
+   "pushedAt": "2026-11-13T16:04:43Z",
+   "isFork": false,
+   "isArchived": false,
+   "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
+   "primaryLanguage": {
+    "name": "Go"
+   },
+   "licenseInfo": {
+    "spdxId": "Apache-2.0"
+   }
+  },
+  "r1": {
+   "id": "R_kgDORCp1Rw",
+   "nameWithOwner": "GoogleChrome/modern-web-guidance-src",
+   "stargazerCount": 4530,
+   "forkCount": 256,
+   "createdAt": "2026-01-27T20:22:24Z",
+   "pushedAt": "2026-11-13T17:34:25Z",
+   "isFork": false,
+   "isArchived": false,
+   "description": "Keep your coding agent up to date with the latest web best practices",
+   "primaryLanguage": {
+    "name": "TypeScript"
+   },
+   "licenseInfo": {
+    "spdxId": "Apache-2.0"
+   }
+  },
+  "r2": {
+   "id": "R_kgDOTXjnhA",
+   "nameWithOwner": "openai/codex-security",
+   "stargazerCount": 12982,
+   "forkCount": 1014,
+   "createdAt": "2026-07-13T22:00:13Z",
+   "pushedAt": "2026-11-13T14:52:10Z",
+   "isFork": false,
+   "isArchived": false,
+   "description": "OpenAI's Codex Security CLI and TypeScript SDK for finding, validating, and fixing security vulnerabilities. npm: https://www.npmjs.com/package/@openai/codex-security",
+   "primaryLanguage": {
+    "name": "TypeScript"
+   },
+   "licenseInfo": {
+    "spdxId": "Apache-2.0"
+   }
+  },
+  "r3": null,
+  "rateLimit": {
+   "cost": 1,
+   "remaining": 4879,
+   "resetAt": "2026-11-13T18:17:02Z"
+  }
+ },
+ "errors": [
+  {
+   "type": "NOT_FOUND",
+   "path": [
+    "r3"
+   ],
+   "locations": [
+    {
+     "line": 15,
+     "column": 496
+    }
+   ],
+   "message": "Could not resolve to a Repository with the name 'github/this-repo-does-not-exist-radar'."
+  }
+ ]
+}

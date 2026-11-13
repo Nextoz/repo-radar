@@ -1,0 +1,53 @@
+name: Collect
+
+on:
+  schedule:
+    - cron: "17 */3 * * *" # every 3 hours, off the busy top of the hour
+  workflow_dispatch:
+
+permissions:
+  contents: write # push snapshots to the data branch
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Check out data branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: data
+          path: data
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.13"
+
+      - name: Collect
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -u -m radar collect --data data
+
+      - name: Commit data
+        if: always() # partial data from a failed run is still worth keeping
+        working-directory: data
+        run: |
+          git config user.name "repo-radar-bot"
+          git config user.email "repo-radar-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -q -m "Collect $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
+
+      - name: Health check
+        run: python -m radar status --data data

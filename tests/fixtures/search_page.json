@@ -1,0 +1,124 @@
+{
+ "variables": {
+  "q": "created:2026-11-10 stars:>=10 sort:stars-desc"
+ },
+ "data": {
+  "search": {
+   "repositoryCount": 642,
+   "pageInfo": {
+    "hasNextPage": true,
+    "endCursor": "Y3Vyc29yOjEwMA=="
+   },
+   "nodes": [
+    {
+     "id": "R_kgDOVo2lNQ",
+     "nameWithOwner": "Kianuni/Erosion-CN",
+     "stargazerCount": 1895,
+     "forkCount": 403,
+     "createdAt": "2026-11-10T02:37:31Z",
+     "pushedAt": "2026-11-13T15:38:08Z",
+     "isFork": false,
+     "isArchived": false,
+     "description": "iOS / iPadOS 系统配置与 MobileGestalt 研究工具箱（简体中文防白苹果安全加固版）",
+     "primaryLanguage": {
+      "name": "Swift"
+     },
+     "licenseInfo": {
+      "spdxId": "GPL-3.0"
+     }
+    },
+    {
+     "id": "R_kgDOVpPffg",
+     "nameWithOwner": "HybridRobotics/supermimic",
+     "stargazerCount": 1421,
+     "forkCount": 92,
+     "createdAt": "2026-11-10T10:46:56Z",
+     "pushedAt": "2026-11-11T08:06:27Z",
+     "isFork": false,
+     "isArchived": false,
+     "description": "Humanoid whole-body motion tracking with one differentiable world model.",
+     "primaryLanguage": {
+      "name": "Python"
+     },
+     "licenseInfo": {
+      "spdxId": "Apache-2.0"
+     }
+    },
+    {
+     "id": "R_kgDOVp0Log",
+     "nameWithOwner": "FrigadeHQ/yogurt",
+     "stargazerCount": 1214,
+     "forkCount": 49,
+     "createdAt": "2026-11-10T20:01:01Z",
+     "pushedAt": "2026-11-13T18:12:07Z",
+     "isFork": false,
+     "isArchived": false,
+     "description": "Private AI meeting notes. Free and open source.",
+     "primaryLanguage": {
+      "name": "TypeScript"
+     },
+     "licenseInfo": {
+      "spdxId": "MIT"
+     }
+    },
+    {
+     "id": "R_kgDOVpKjqg",
+     "nameWithOwner": "JDhruv14/line-art-animation",
+     "stargazerCount": 645,
+     "forkCount": 104,
+     "createdAt": "2026-11-10T09:25:25Z",
+     "pushedAt": "2026-11-10T09:25:38Z",
+     "isFork": false,
+     "isArchived": false,
+     "description": "A Claude skill and TypeScript library for animated line-art SVG components: ink figures that walk and react, scenes with a day/night cycle.",
+     "primaryLanguage": {
+      "name": "TypeScript"
+     },
+     "licenseInfo": {
+      "spdxId": "MIT"
+     }
+    },
+    {
+     "id": "R_kgDOVpQQEg",
+     "nameWithOwner": "aronhy/pibrowse",
+     "stargazerCount": 365,
+     "forkCount": 106,
+     "createdAt": "2026-11-10T10:59:31Z",
+     "pushedAt": "2026-11-12T03:08:07Z",
+     "isFork": false,
+     "isArchived": false,
+     "description": "Open-source browser profile workspaces",
+     "primaryLanguage": {
+      "name": "TypeScript"
+     },
+     "licenseInfo": {
+      "spdxId": "AGPL-3.0"
+     }
+    },
+    {
+     "id": "R_kgDOVpxtiQ",
+     "nameWithOwner": "MSNightmare/SignDrop",
+     "stargazerCount": 329,
+     "forkCount": 81,
+     "createdAt": "2026-11-10T19:20:06Z",
+     "pushedAt": "2026-11-10T23:53:17Z",
+     "isFork": false,
+     "isArchived": false,
+     "description": "Windows Common Log FileSystem Authentication 0day Local Privilege Escalation Vulnerability",
+     "primaryLanguage": {
+      "name": "C"
+     },
+     "licenseInfo": {
+      "spdxId": "MIT"
+     }
+    }
+   ]
+  },
+  "rateLimit": {
+   "cost": 1,
+   "remaining": 4881,
+   "resetAt": "2026-11-13T18:17:02Z"
+  }
+ },
+ "errors": []
+}
