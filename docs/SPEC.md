@@ -62,7 +62,26 @@ depends on them a month from now):
 - The Anthropic API: structured output, tool use, token counts and real cost.
 - Parsing accuracy of the import graph on real repositories.
 - GitHub tarball download limits and typical repository sizes.
-- How late scheduled Actions really run (compare `runs.jsonl` with the cron).
+
+### 2.1 What the first two days of real data showed (15 Nov)
+
+Measured on 8 snapshots covering 36 hours and 19,917 repos with history. These
+findings changed the plan; each change is marked "(2.1)" where it lands.
+
+| Finding | Numbers | Consequence |
+|---|---|---|
+| **The radar could not see Trending coming.** Every repo on Trending was older than the 30-day discovery window | 19 of 19 Trending repos were between 65 days and 5 years old, with 2,400 to 94,000 stars. None was on the watchlist before it trended | The watchlist must include established repos. New package **WP0**, before anything else |
+| Established, active repos are a manageable set | 24,816 repos with 500+ stars pushed in the last 7 days; 16,361 with 1,000+ | Watching them adds about 250 batch calls per run |
+| **The schedule is unreliable.** GitHub ran the 3-hourly cron 5 times in 36 hours | Gaps of 7.1, 9.0, 7.6, 4.4 and 8.2 hours | Detection must work on uneven intervals; a second trigger is needed (WP0) |
+| Growth is rare and sharply skewed | Median gain 0 a day; 90th percentile 17; 99th percentile 165; 30 repos above 300 a day | A minimum gain of 20 a day keeps about 1,700 of 20,000 repos |
+| The starting threshold was too loose | Acceleration at or above 3: 207 repos. At or above 5: 66 | Start at 5 (6.9) |
+| **Star farms are common and easy to see** | Twelve accounts held a repo named `ai-manus` with identical counts, all 52 to 262 in the same interval, fork ratio about 0.7. 40 of the 1,722 growing repos had a fork ratio above 0.3 | Two rules for WP2: same-name clusters with identical growth, and fork ratio |
+| Star counts go down | 1,356 repos (7%) lost stars between two snapshots | Detection must not treat a fall as an error |
+| Real early catches exist | `basetenlabs/deepseek-ultrafast` 65 to 362, `egoist/asuka` 23 to 214, `affifuddin-hazam/ghost-infer` 46 to 234, none on Trending | The idea works for young repos; these are the first test cases |
+| Many descriptions are not in English, and some are empty | Several of the top 25 were in Chinese; one had no description | The judge writes the summary in English and must cope with an empty description |
+
+The analysis script and its output are kept with the WP1 fixtures when WP1
+starts; until then the numbers above are the record.
 
 ## 3. Rules that apply to every task
 
@@ -102,7 +121,13 @@ optional style.
     costly to reverse, the subagent stops and reports the options. The lead
     asks the owner with two or three concrete options (screenshots for
     anything visual). Nobody picks silently.
-11. **Plain language** in everything a person reads: UI text, README, docs,
+11. **Log every step.** The owner presents this build to others, so the
+    record is part of the product. Every session ends with an entry in
+    `docs/ITERATIONS.md`: what was asked, what was done, what was found, what
+    failed, what changed. The owner also keeps a private project log with
+    their prompts word for word; at the end of a session the lead adds that
+    session's prompts and steps to it before reporting done.
+12. **Plain language** in everything a person reads: UI text, README, docs,
     commit messages. Short sentences, no jargon without a definition.
 
 ## 4. Architecture
@@ -243,7 +268,7 @@ then starts the builders.
 
 | Phase | In parallel | Then |
 |---|---|---|
-| M1 | WP1 (detect) and WP2 (enrich, quality) | WP3 (site), on their real output |
+| M1 | WP0 (watchlist, schedule) first and alone. Then WP1 (detect) and WP2 (enrich, quality) | WP3 (site), on their real output |
 | M2 | WP4 (signals) and WP5 (judge); WP7 (parser) can start now, it touches nothing else | WP6 (digest, health) |
 | M3 | WP8 (agent, validator) after WP7 | WP9 (X-ray pages), on real X-ray files |
 | M4 | WP10 (trust, injection) and WP11 (scoreboard, how-it-works) | |
@@ -375,8 +400,13 @@ detect/runs.jsonl           one summary per run
 }
 ```
 
-- A gain is `null` when no snapshot exists within 2 hours of the needed time.
-  Never substitute zero for "unknown".
+- Snapshots arrive at uneven intervals (2.1), so growth is a **rate**, not a
+  difference between two fixed times. `gain_24h` is the star gain per 24 hours
+  over the most recent window of `MIN_WINDOW_HOURS` to `MAX_WINDOW_HOURS`: the
+  newest snapshot against the snapshot closest to 24 hours before it. Each repo
+  entry also carries `window_hours`, the real length of that window.
+- A gain is `null` when no snapshot pair fits its window. Never substitute zero
+  for "unknown".
 - `series` is at most 60 points, for the sparkline.
 - `repos` holds every repo with `gain_24h` at or above the minimum gain, not
   only breakouts, sorted by acceleration.
@@ -567,8 +597,13 @@ profile/scouts.txt       one GitHub login per line, "#" for comments
 ```python
 MIN_GAIN_24H = 20            # below this, growth is noise
 BASELINE_K = 5               # smoothing for tiny baselines
-ACCELERATION_THRESHOLD = 3.0
+ACCELERATION_THRESHOLD = 5.0   # 3.0 flagged 207 repos on real data, 5.0 flagged 66 (2.1)
 CONSECUTIVE_RUNS = 2         # a breakout must hold for two runs
+MIN_WINDOW_HOURS = 18        # shortest span a daily rate may be computed over (2.1)
+MAX_WINDOW_HOURS = 36        # longest span still called "the last day"
+ESTABLISHED_MIN_STARS = 500  # tier 2 of the watchlist (WP0)
+ESTABLISHED_PUSHED_DAYS = 7
+FORK_RATIO_SUSPECT = 0.3     # forks per star; the median for growing repos is near 0 (2.1)
 STAGE_SPARK_MAX = 100        # stars
 STAGE_RISING_MAX = 1000
 CANDIDATE_LIMIT = 300        # repos considered for enrichment per run
@@ -590,6 +625,49 @@ Each one names its goal, what it owns, what it must do, and when it is done.
 "Done when" is the acceptance test; a package that meets it is finished even
 if more could be added.
 
+### WP0 - Watch established repos, and make the schedule dependable  (M1, first)
+
+**Goal:** close the two gaps the first data exposed (2.1): the radar must see
+established repos before they trend, and it must run often enough to matter.
+
+**Owns:** `radar/collect.py`, `radar/config.py`, `tests/test_collect.py`,
+`.github/workflows/collect.yml`, `scripts/capture_fixtures.py`.
+**Reads and writes:** 6.1 (no shape change; `source` gains `search-established`).
+
+**Spike first:** time a full sweep of the established tier (star-range slices
+that each stay under 1,000 results; find the slice boundaries from real
+counts). Time a refresh of 45,000 repos in batches of 100 and note the
+rate-limit cost inside Actions. Look at a week of `runs.jsonl` and measure how
+late and how often the schedule really fires.
+
+**Must:**
+
+- **Tier 2 discovery:** repos with `ESTABLISHED_MIN_STARS` or more stars pushed
+  in the last `ESTABLISHED_PUSHED_DAYS` days, found by star-range slices, once
+  a day (not every run). They join `repos.jsonl` with source
+  `search-established` and are refreshed like every other watched repo.
+- **Truncated day slices** (more than 1,000 results) are split by star range
+  the same way, so the lowest-star tail is no longer lost.
+- **Retire quiet repos from frequent refresh:** a repo with no star change for
+  14 days is refreshed once a day; this needs only the registry and a small
+  `watch/state.json` cache, rewritten each run. Document it as the second
+  non-append file.
+- **A run must finish inside 15 minutes** and inside the Actions rate limit
+  with room to spare; record both in `runs.jsonl`.
+- **Schedule:** change the cron to hourly and make the collector skip (exit 0,
+  one log line, no snapshot) when the newest snapshot is younger than
+  2.5 hours. A late or dropped trigger then costs at most an hour instead of a
+  whole cycle.
+- **Second trigger:** a hidden scheduled task on the owner's PC that starts the
+  workflow (`gh workflow run`) every 3 hours while the PC is on. It is a
+  backup, not the main path; the skip rule makes double triggers harmless.
+  Installing it needs the owner's go-ahead.
+
+**Done when:** a week of `runs.jsonl` shows no gap longer than 4 hours while
+the owner's PC was on and none longer than 6 otherwise; at least 15 of the
+next 20 repos that appear on Trending were on the watchlist beforehand; run
+time and rate cost are recorded; the skip rule has a test.
+
 ### WP1 - Detect and lead time  (M1)
 
 **Goal:** turn snapshots into a ranking by acceleration, and record the moment
@@ -607,8 +685,9 @@ numbers; they set the constants in 6.9.
 
 **Must:**
 
-- Load only the snapshots it needs (now, previous run, 24 h, 72 h, 7 d, 8 d
-  ago, each as the nearest file within 2 hours), not the whole history.
+- Load only the snapshots it needs (the newest, the previous one, and the
+  ones closest to 24 hours, 72 hours, 7 days and 8 days back), not the whole
+  history. Work in rates over the real window lengths (6.3).
 - `baseline`: average daily gain over the 7 days before the last 24 hours.
   When that history does not exist yet, use the repo's lifetime average up to
   24 hours ago, from `created_at`. Record which one was used.
@@ -619,8 +698,11 @@ numbers; they set the constants in 6.9.
   has appeared in `trending/`.
 - `reached_trending_at` is the first `ts` in `trending/` for that id (match by
   id, fall back to case-insensitive name for rows whose id is null).
-- Survive gaps: missed runs, a repo absent from one snapshot, a star count
-  that goes *down* (stars get removed), a repo that was renamed.
+- Survive gaps: missed runs (they are normal, see 2.1), a repo absent from one
+  snapshot, a star count that goes *down* (7% of repos in two days), a repo
+  that was renamed.
+- The first test cases are the real early catches and the real Trending repos
+  named in 2.1.
 - With less than 24 hours of history, write `detect/latest.json` with an empty
   `repos` list and `history_hours` set, and exit 0. That is a valid state.
 
@@ -655,6 +737,12 @@ fetched one repo per call or in small batches.
   extension, capped at the excerpt length; store its hash.
 - Detect junk and inflation by rules with fixed reason codes. Every rule has a
   test with a real repository of that kind, captured as a fixture.
+- Two inflation rules come straight from the data (2.1): `same-name-cluster`
+  (three or more watched repos share a repository name and show the same star
+  gain in the same interval) and `fork-ratio-high` (forks per star above
+  `FORK_RATIO_SUSPECT`). The `ai-manus` cluster is the fixture for the first.
+- Repos flagged as inflated are not deleted. They leave the lanes and are
+  listed on the site under "Hidden as fake growth", with the rules that fired.
 - Compute `quality.score` as documented arithmetic. No model call.
 - Respect `ENRICH_PER_RUN`, and refresh the least recently fetched first.
 - Treat every fetched string as untrusted (rule 5).
@@ -693,7 +781,10 @@ design against it.
   the Trending moment marked; the signals that fired; the quality parts; junk
   and inflation flags in words; links to GitHub and to the X-ray when present.
 - **Scoreboard (shell).** The table and the headline numbers, from
-  `scoreboard.json`, honest about small samples ("3 repos so far").
+  `scoreboard.json`, honest about small samples ("3 repos so far"), and with
+  the misses and their reasons next to the hits from the first version on.
+- **Hidden as fake growth:** a section listing what the inflation rules
+  removed, with the rules that fired.
 - **Health footer** on every page: "data updated at", from `health.json`, and
   a visible warning when it is older than 7 hours.
 - "New since your last visit" from the browser's local storage, with the page
@@ -705,6 +796,13 @@ design against it.
 - All repository text escaped. Links to repositories built from the validated
   `owner/repo` only.
 - Empty states designed, not accidental: no breakouts yet, no history yet.
+
+**Mockups:** five screens exist as a design canvas (the owner has the link;
+it is private): Radar A (three lanes side by side), Radar B (one ranked table
+with tabs and filters), the repo page, the X-ray page and the scoreboard. They
+use real data from 13-15 Nov. **The owner chooses between Radar A and B before
+WP3 starts**; record the choice in `docs/DECISIONS.md`. The other screens are
+the starting point, not a pixel contract.
 
 **Design direction:** this is a tool people scan, not a marketing page. Dense,
 calm, legible. The growth line is the hero of every card. Use the
@@ -1015,8 +1113,8 @@ approval. The local fixture is enough for the tests.
 
 | Date | Milestone | Packages | Proof |
 |---|---|---|---|
-| 13 Nov | M0 Collector | done | Runs green, data on the branch |
-| 20 Nov | M1 Radar live | WP1, WP2, WP3 | Public URL shows real breakouts |
+| 13 Nov | M0 Collector | done | Runs green, data on the branch. First findings in 2.1 |
+| 20 Nov | M1 Radar live | WP0, WP1, WP2, WP3 | Public URL shows real breakouts; established repos are on the watchlist |
 | 26 Nov | M2 AI ranking | WP4, WP5, WP6, R1 | For you lane, digest in the inbox, model comparison |
 | 3 Dec | M3 X-ray | WP7, WP8, WP9 | Three real X-rays the owner judged correct |
 | 8 Dec | M4 Trust and proof | WP10, WP11 | Attack shown with and without defence; scoreboard with real lead times |
@@ -1035,7 +1133,8 @@ is true, the proof is shown.
 | Too little history to prove lead time | Few rows in `flags.jsonl` by early December | Keep the collector healthy above all; show sample sizes honestly |
 | The X-ray is wrong on a repo someone knows | Hand-checks below 95% | Narrow what is claimed; show `unresolved`; never draw a guessed edge |
 | AI cost drifts | `judge/runs.jsonl` cost rising day over day | The budget guard stops it; check the cache hit rate first |
-| Schedules pause or lag | Data age warning | The health issue (WP6); the same CLI runs from the owner's PC |
+| Schedules pause or lag | Seen on day one: 5 runs in 36 hours (2.1) | Hourly cron with a skip rule and a second trigger (WP0); the health issue (WP6) |
+| The radar only sees part of GitHub | A Trending repo that was never on the watchlist | The scoreboard's misses table shows it; widen the tiers (WP0) |
 | Data branch grows | Clone time, repository size | Thinning (WP12), earlier if size passes 500 MB |
 | A subagent builds on an invented shape | A test passes and the real run fails | Rule 2; the lead runs every stage on real data before merging |
 | Scope | A milestone slips twice | Section 8's cutting order; ask the owner what to drop |

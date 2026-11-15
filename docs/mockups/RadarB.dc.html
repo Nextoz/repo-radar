@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Radar - one ranked list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F4F5F7;color:#151A22;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#1D4FD8;text-decoration:none}a:hover{color:#163BA3;text-decoration:underline}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.muted{color:#5B6472}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.tab{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;margin-right:24px;font-size:15px;color:#5B6472;border-bottom:3px solid transparent}
+.tab.on{color:#151A22;font-weight:600;border-bottom-color:#B45309}
+th{font-size:12px;font-weight:600;color:#5B6472;text-align:left;padding:10px 12px;border-bottom:1px solid #DDE1E7;white-space:nowrap}
+td{padding:12px;border-bottom:1px solid #EEF0F3;vertical-align:middle;font-size:14px}
+.r{text-align:right}
+.chk{display:flex;align-items:center;gap:8px;min-height:32px;font-size:14px}
+</style>
+</helmet>
+<div style="max-width: 1360px; margin: 0 auto; padding: 0 32px 48px; box-sizing: border-box">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid #DDE1E7">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="#151A22" stroke-width="2"/><circle cx="13" cy="13" r="5" fill="none" stroke="#151A22" stroke-width="2"/><path d="M13 13 L22 6" stroke="#B45309" stroke-width="2.5" stroke-linecap="round"/></svg>
+<span style="font-size: 20px; font-weight: 700">Repo Radar</span>
+</div>
+<nav style="display: flex; gap: 20px; font-size: 15px; flex: 1 1 auto">
+<a href="RadarB.dc.html" style="color: #151A22; font-weight: 600; border-bottom: 2px solid #B45309; padding: 6px 0">Radar</a>
+<a href="Scoreboard.dc.html" style="padding: 6px 0">Scoreboard</a>
+<a href="#how" style="padding: 6px 0">How it works</a>
+</nav>
+<div class="muted" style="font-size: 13px">Data updated <span class="mono">15 Nov 07:34</span> · 21,140 repos watched</div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; padding-top: 24px">
+
+<aside style="flex: 1 1 200px; max-width: 240px; display: flex; flex-direction: column; gap: 20px">
+<div><div style="font-size: 13px; font-weight: 600; margin-bottom: 6px">Stage</div>
+<label class="chk"><input type="checkbox" checked> Spark · under 100★</label>
+<label class="chk"><input type="checkbox" checked> Rising · 100-1,000★</label>
+<label class="chk"><input type="checkbox" checked> Large · over 1,000★</label></div>
+<div><div style="font-size: 13px; font-weight: 600; margin-bottom: 6px">Language</div>
+<label class="chk"><input type="checkbox" checked> Python</label>
+<label class="chk"><input type="checkbox" checked> TypeScript</label>
+<label class="chk"><input type="checkbox" checked> Rust</label>
+<label class="chk"><input type="checkbox" checked> Go</label>
+<label class="chk"><input type="checkbox"> Other</label></div>
+<div><div style="font-size: 13px; font-weight: 600; margin-bottom: 6px">Show</div>
+<label class="chk"><input type="checkbox" checked> Not on Trending yet</label>
+<label class="chk"><input type="checkbox"> Only new since my last visit</label>
+<label class="chk"><input type="checkbox"> Include fake growth (40)</label></div>
+<div style="background: #fff; border: 1px solid #DDE1E7; border-radius: 8px; padding: 14px; font-size: 13px; line-height: 1.5"><b>Pace</b> is today's star gain divided by the repo's own normal daily gain. 20× means it gets as many stars in a day as it used to get in three weeks.</div>
+</aside>
+
+<main style="flex: 999 1 640px; min-width: 0">
+<div style="border-bottom: 1px solid #DDE1E7; margin-bottom: 4px">
+<a class="tab on" href="#breaking">Breaking out · 66</a><a class="tab" href="#foryou">For you</a><a class="tab" href="#hn">Just discussed</a><a class="tab" href="#scouts">Scouts' picks</a>
+</div>
+<div style="overflow-x: auto; background: #fff; border: 1px solid #DDE1E7; border-radius: 8px; margin-top: 16px">
+<table style="border-collapse: collapse; width: 100%; min-width: 860px">
+<thead><tr><th>#</th><th>Repository</th><th>Stage</th><th class="r">Stars</th><th class="r">+36 h</th><th class="r">Pace ▾</th><th>Growth since 13 Nov</th><th class="r">Quality</th><th class="r">Fit</th><th>Signals</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+<tr>
+<td class="mono muted">{{r.rank}}</td>
+<td style="max-width: 340px"><a class="mono" href="Repo.dc.html" style="font-weight: 600; overflow-wrap: anywhere">{{r.name}}</a><div class="muted" style="font-size: 13px; margin-top: 2px; line-height: 1.4">{{r.desc}}</div></td>
+<td><span class="badge" style="background: {{r.stageBg}}; color: {{r.stageFg}}">{{r.stage}}</span></td>
+<td class="r mono">{{r.stars}}</td>
+<td class="r mono" style="color: #166534; font-weight: 600">+{{r.gain}}</td>
+<td class="r mono" style="color: #B45309; font-weight: 600; font-size: 16px">{{r.pace}}×</td>
+<td><svg viewBox="0 0 140 32" width="140" height="32" aria-hidden="true"><path d="{{r.line}}" fill="none" stroke="#1D4FD8" stroke-width="2" stroke-linejoin="round"/></svg></td>
+<td class="r mono">[n]</td>
+<td class="r mono">[n]</td>
+<td><span class="badge" style="background: {{r.sigBg}}; color: {{r.sigFg}}">{{r.signal}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p class="muted" style="font-size: 13px; margin: 12px 0 0">Showing 10 of 66. Stars, gains and pace are real, from snapshots taken 13-15 Nov 2026.</p>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+const T = [0, 0.07, 0.12, 7.2, 16.2, 23.8, 28.1, 36.3];
+const path = (a) => {
+const mn = Math.min.apply(null, a), mx = Math.max.apply(null, a), r = (mx - mn) || 1;
+return a.map((v, i) => (i ? 'L' : 'M') + (T[i] / 36.3 * 136 + 2).toFixed(1) + ' ' + (29 - (v - mn) / r * 26).toFixed(1)).join(' ');
+};
+const stage = (s) => s < 100 ? ['Spark', '#FEF3C7', '#7C4A03'] : s < 1000 ? ['Rising', '#DCFCE7', '#14532D'] : ['Large', '#E5E7EB', '#1F2937'];
+const data = [
+['GoogleChrome/modern-web-guidance-src', [4540, 4549, 4553, 4884, 5248, 5698, 5934, 6288], '56.0', 'Keep your coding agent up to date with the latest web best practices', 'On Trending'],
+['RoutineMiku/apkstart', [753, 756, 758, 1103, 2468, 3346, 3465, 4154], '41.2', 'Android app runner for Windows (translated from Chinese)', 'Early'],
+['tradermonty/claude-trading-skills', [4034, 4038, 4040, 4185, 4383, 4623, 4756, 4987], '41.1', 'Claude Code skills for equity investors and traders', 'On Trending'],
+['basetenlabs/deepseek-ultrafast', [65, 65, 65, 120, 170, 269, 317, 362], '22.5', '[AI summary: GitHub has no description]', 'Early'],
+['Likely7/Veyra-NRVideo', [1531, 1534, 1535, 1625, 1791, 1984, 2179, 2410], '20.4', 'An advanced Windows video player and capture enhancer', 'On Trending'],
+['tailscale/tailcat', [9334, 9337, 9339, 9468, 9641, 9786, 9816, 9866], '20.1', "Like netcat, but over Tailscale's data plane", 'On Trending'],
+['egoist/asuka', [23, 23, 23, 30, 145, 188, 197, 214], '19.4', '[experimental] Cross-platform UI framework using actual OS widgets', 'Early'],
+['backnotprop/plannotator', [10365, 10365, 10366, 10468, 10632, 10898, 11068, 11346], '17.4', 'The workspace to stay in the loop and on top of agents', 'On Trending'],
+['affifuddin-hazam/ghost-infer', [46, 46, 46, 71, 166, 209, 230, 234], '16.2', 'Fast local LLM inference for the GPU you already have', 'Early'],
+['libracoder/kiri', [2109, 2111, 2111, 2241, 2565, 3381, 3640, 4106], '6.8', 'A small, fast container runtime for macOS, Windows and Linux', 'Early']
+];
+return { rows: data.map((d, i) => { const st = stage(d[1][0]); const early = d[4] === 'Early'; return { rank: i + 1, name: d[0], desc: d[3], pace: d[2], line: path(d[1]), stage: st[0], stageBg: st[1], stageFg: st[2], stars: d[1][7].toLocaleString('en-US'), gain: (d[1][7] - d[1][0]).toLocaleString('en-US'), signal: early ? 'Not on Trending' : 'On Trending', sigBg: early ? '#DCFCE7' : '#F3F4F6', sigFg: early ? '#14532D' : '#5B6472' }; }) };
+}
+}
+</script>
+</body>
+</html>

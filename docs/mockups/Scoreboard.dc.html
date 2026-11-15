@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scoreboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F4F5F7;color:#151A22;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#1D4FD8;text-decoration:none}a:hover{color:#163BA3;text-decoration:underline}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.muted{color:#5B6472}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.card{background:#fff;border:1px solid #DDE1E7;border-radius:8px;padding:20px}
+h2{margin:0 0 12px;font-size:16px}
+th{font-size:12px;font-weight:600;color:#5B6472;text-align:left;padding:10px 12px;border-bottom:1px solid #DDE1E7;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid #EEF0F3;font-size:14px;vertical-align:middle}
+.r{text-align:right}
+</style>
+</helmet>
+<div style="max-width: 1360px; margin: 0 auto; padding: 0 32px 48px; box-sizing: border-box">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid #DDE1E7">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="#151A22" stroke-width="2"/><circle cx="13" cy="13" r="5" fill="none" stroke="#151A22" stroke-width="2"/><path d="M13 13 L22 6" stroke="#B45309" stroke-width="2.5" stroke-linecap="round"/></svg>
+<span style="font-size: 20px; font-weight: 700">Repo Radar</span>
+</div>
+<nav style="display: flex; gap: 20px; font-size: 15px; flex: 1 1 auto"><a href="Main.dc.html" style="padding: 6px 0">Radar</a><a href="Scoreboard.dc.html" style="color: #151A22; font-weight: 600; border-bottom: 2px solid #B45309; padding: 6px 0">Scoreboard</a><a href="#how" style="padding: 6px 0">How it works</a></nav>
+<div class="muted" style="font-size: 13px">Measuring since <span class="mono">13 Nov 2026</span></div>
+</header>
+
+<section style="padding: 28px 0 20px">
+<h1 style="margin: 0 0 8px; font-size: 30px; font-weight: 700; letter-spacing: -0.01em">Does the radar beat GitHub Trending?</h1>
+<p class="muted" style="margin: 0; font-size: 16px; max-width: 780px">Every repo the radar flags is recorded with the time. Every repo that shows up on Trending is recorded too. This page compares the two, including the ones the radar missed.</p>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px">
+<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Median lead over Trending</div><div class="mono" style="font-size: 34px; font-weight: 600">[N days]</div><div class="muted" style="font-size: 13px">from [n] repos that were flagged first</div></div>
+<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Trending repos flagged first</div><div class="mono" style="font-size: 34px; font-weight: 600">[n] of [n]</div><div class="muted" style="font-size: 13px">the radar's hit rate against Trending</div></div>
+<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Flagged repos that kept growing</div><div class="mono" style="font-size: 34px; font-weight: 600">[n %]</div><div class="muted" style="font-size: 13px">still above normal pace 7 days later</div></div>
+<div class="card" style="flex: 1 1 240px; border-color: #F3C9C9; background: #FEF6F6"><div class="muted" style="font-size: 13px">Missed</div><div class="mono" style="font-size: 34px; font-weight: 600; color: #B91C1C">19 of 19</div><div class="muted" style="font-size: 13px">Trending repos in the first two days. See why below.</div></div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<section class="card" style="flex: 999 1 620px; min-width: 0; padding: 0">
+<div style="padding: 20px 20px 4px"><h2>Flagged by the radar</h2></div>
+<div style="overflow-x: auto">
+<table style="border-collapse: collapse; width: 100%; min-width: 640px">
+<thead><tr><th>Repository</th><th>Flagged</th><th class="r">Stars then</th><th class="r">Stars now</th><th>Reached Trending</th><th class="r">Lead</th></tr></thead>
+<tbody>
+<sc-for list="{{flagged}}" as="f" hint-placeholder-count="6">
+<tr><td><a class="mono" href="Repo.dc.html" style="font-weight: 600; overflow-wrap: anywhere">{{f.name}}</a></td><td class="mono">{{f.when}}</td><td class="r mono">{{f.then}}</td><td class="r mono" style="font-weight: 600">{{f.now}}</td><td><span class="badge" style="background: #F3F4F6; color: #5B6472">Not yet</span></td><td class="r mono muted">running</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p class="muted" style="font-size: 13px; padding: 12px 20px 16px; margin: 0">Flag times here are what the rule would have produced on real snapshots. When a repo reaches Trending, its row shows the date and the lead in days.</p>
+</section>
+
+<section class="card" style="flex: 1 1 380px; min-width: 0">
+<h2>Missed, and why</h2>
+<p style="margin: 0 0 12px; font-size: 14px; line-height: 1.55">All 19 repos seen on Trending so far were <b>older than 30 days</b>, between 65 days and 5 years old. The first version of the radar only watched repos created in the last 30 days, so it could not see them coming.</p>
+<table style="border-collapse: collapse; width: 100%">
+<thead><tr><th>On Trending</th><th class="r">Age</th><th class="r">Stars</th></tr></thead>
+<tbody>
+<sc-for list="{{missed}}" as="m" hint-placeholder-count="6">
+<tr><td class="mono" style="font-size: 13px; overflow-wrap: anywhere">{{m.name}}</td><td class="r mono" style="font-size: 13px">{{m.age}}</td><td class="r mono" style="font-size: 13px">{{m.stars}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<div style="background: #F6F8FE; border-radius: 6px; padding: 12px 14px; font-size: 14px; line-height: 1.5; margin-top: 14px"><b>What changed because of this:</b> the watchlist now also covers about 25,000 established repos with recent activity. This table is how that gap was found.</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1120}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+flagged: [
+{ name: 'RoutineMiku/apkstart', when: '14 Nov 11:28', then: '2,468', now: '4,154' },
+{ name: 'libracoder/kiri', when: '14 Nov 19:03', then: '3,381', now: '4,106' },
+{ name: 'basetenlabs/deepseek-ultrafast', when: '14 Nov 11:28', then: '170', now: '362' },
+{ name: 'egoist/asuka', when: '14 Nov 19:03', then: '188', now: '214' },
+{ name: 'affifuddin-hazam/ghost-infer', when: '14 Nov 19:03', then: '209', now: '234' },
+{ name: 'ZiChuanLan/freebie-radar', when: '14 Nov 23:25', then: '294', now: '529' }
+],
+missed: [
+{ name: 'GoogleChrome/modern-web-guidance-src', age: '290 d', stars: '6,288' },
+{ name: 'tradermonty/claude-trading-skills', age: '390 d', stars: '4,987' },
+{ name: 'Likely7/Veyra-NRVideo', age: '65 d', stars: '2,410' },
+{ name: 'tailscale/tailcat', age: '745 d', stars: '9,866' },
+{ name: 'backnotprop/plannotator', age: '321 d', stars: '11,346' },
+{ name: 'we-promise/sure', age: '479 d', stars: '15,421' },
+{ name: 'louislam/uptime-kuma', age: '1,960 d', stars: '94,318' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Radar - three lanes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F4F5F7;color:#151A22;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#1D4FD8;text-decoration:none}a:hover{color:#163BA3;text-decoration:underline}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.muted{color:#5B6472}
+.pill{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border:1px solid #CBD1DA;border-radius:16px;background:#fff;font-size:13px;color:#151A22;cursor:pointer;font-family:inherit}
+.pill.on{background:#151A22;color:#fff;border-color:#151A22}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.card{background:#fff;border:1px solid #DDE1E7;border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lane{flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.num{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:600}
+</style>
+</helmet>
+<div style="max-width: 1360px; margin: 0 auto; padding: 0 32px 48px; box-sizing: border-box">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid #DDE1E7">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="#151A22" stroke-width="2"/><circle cx="13" cy="13" r="5" fill="none" stroke="#151A22" stroke-width="2"/><path d="M13 13 L22 6" stroke="#B45309" stroke-width="2.5" stroke-linecap="round"/></svg>
+<span style="font-size: 20px; font-weight: 700">Repo Radar</span>
+</div>
+<nav style="display: flex; gap: 20px; font-size: 15px; flex: 1 1 auto">
+<a href="Main.dc.html" style="color: #151A22; font-weight: 600; border-bottom: 2px solid #B45309; padding: 6px 0">Radar</a>
+<a href="Scoreboard.dc.html" style="padding: 6px 0">Scoreboard</a>
+<a href="#how" style="padding: 6px 0">How it works</a>
+</nav>
+<div class="muted" style="font-size: 13px">Data updated <span class="mono">15 Nov 07:34</span> · 21,140 repos watched</div>
+</header>
+
+<section style="padding: 28px 0 20px">
+<h1 style="margin: 0 0 8px; font-size: 30px; font-weight: 700; letter-spacing: -0.01em">Open source that is taking off right now</h1>
+<p class="muted" style="margin: 0; font-size: 16px; max-width: 760px">Ranked by how much faster a repo is growing than its own normal pace, not by how big it is. Most of these are not on GitHub Trending yet.</p>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px">
+<div class="card" style="flex: 1 1 220px; gap: 4px"><span class="muted" style="font-size: 13px">Breaking out now</span><span class="num" style="font-size: 28px">66</span><span class="muted" style="font-size: 13px">growing 5× or more above their normal pace</span></div>
+<div class="card" style="flex: 1 1 220px; gap: 4px"><span class="muted" style="font-size: 13px">Not on Trending yet</span><span class="num" style="font-size: 28px; color: #166534">59</span><span class="muted" style="font-size: 13px">of those 66</span></div>
+<div class="card" style="flex: 1 1 220px; gap: 4px"><span class="muted" style="font-size: 13px">Median lead over Trending</span><span class="num" style="font-size: 28px">[N days]</span><span class="muted" style="font-size: 13px">measured since 13 Nov · see Scoreboard</span></div>
+<div class="card" style="flex: 1 1 220px; gap: 4px"><span class="muted" style="font-size: 13px">Hidden as fake growth</span><span class="num" style="font-size: 28px; color: #B91C1C">40</span><span class="muted" style="font-size: 13px">copies and star farms, shown below</span></div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 24px">
+<span class="muted" style="font-size: 13px; margin-right: 4px">Language</span>
+<button class="pill on">All</button><button class="pill">Python</button><button class="pill">TypeScript</button><button class="pill">Rust</button><button class="pill">Go</button>
+<span class="muted" style="font-size: 13px; margin: 0 4px 0 16px">Stage</span>
+<button class="pill on">All</button><button class="pill">Spark · under 100★</button><button class="pill">Rising · 100-1,000★</button><button class="pill">Large</button>
+<label style="margin-left: auto; font-size: 13px; display: flex; align-items: center; gap: 8px; min-height: 32px"><input type="checkbox" checked> Only new since my last visit</label>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<section class="lane">
+<div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 18px">Breaking out</h2><span class="muted" style="font-size: 13px">all of GitHub</span></div>
+<sc-for list="{{breaking}}" as="r" hint-placeholder-count="5">
+<article class="card">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span class="badge" style="background: {{r.stageBg}}; color: {{r.stageFg}}">{{r.stage}}</span>
+<a class="mono" href="Repo.dc.html" style="font-size: 14px; font-weight: 600; overflow-wrap: anywhere">{{r.name}}</a>
+<sc-if value="{{r.isNew}}" hint-placeholder-val="{{true}}"><span class="badge" style="background: #1D4FD8; color: #fff">New</span></sc-if>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.45">{{r.desc}}</p>
+<div style="display: flex; align-items: center; gap: 14px">
+<svg viewBox="0 0 140 40" width="140" height="40" aria-hidden="true"><path d="{{r.area}}" fill="#E8EEFC"/><path d="{{r.line}}" fill="none" stroke="#1D4FD8" stroke-width="2" stroke-linejoin="round"/></svg>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="num" style="font-size: 18px">{{r.stars}} ★</span>
+<span style="font-size: 13px; color: #166534; font-weight: 600">+{{r.gain}} in 36 h</span>
+</div>
+<div style="margin-left: auto; text-align: right">
+<span class="num" style="font-size: 22px; color: #B45309">{{r.pace}}×</span>
+<div class="muted" style="font-size: 12px">its normal pace</div>
+</div>
+</div>
+<div class="muted" style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; border-top: 1px solid #EEF0F3; padding-top: 10px">
+<span>{{r.lang}}</span><span>{{r.age}} old</span><span>Quality <b style="color: #151A22">{{r.quality}}</b></span><span style="margin-left: auto">{{r.note}}</span>
+</div>
+</article>
+</sc-for>
+</section>
+
+<section class="lane">
+<div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 18px">For you</h2><span class="muted" style="font-size: 13px">ranked by fit to your interests</span></div>
+<sc-for list="{{foryou}}" as="r" hint-placeholder-count="4">
+<article class="card">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+<span class="badge" style="background: {{r.stageBg}}; color: {{r.stageFg}}">{{r.stage}}</span>
+<a class="mono" href="Repo.dc.html" style="font-size: 14px; font-weight: 600; overflow-wrap: anywhere">{{r.name}}</a>
+<sc-if value="{{r.trending}}" hint-placeholder-val="{{false}}"><span class="badge" style="background: #F3F4F6; color: #5B6472">On Trending</span></sc-if>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.45">{{r.desc}}</p>
+<div style="background: #F6F8FE; border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 1.45"><b>Why you:</b> {{r.why}}</div>
+<div style="display: flex; align-items: center; gap: 14px">
+<svg viewBox="0 0 140 40" width="140" height="40" aria-hidden="true"><path d="{{r.area}}" fill="#E8EEFC"/><path d="{{r.line}}" fill="none" stroke="#1D4FD8" stroke-width="2" stroke-linejoin="round"/></svg>
+<div style="display: flex; flex-direction: column; gap: 2px"><span class="num" style="font-size: 18px">{{r.stars}} ★</span><span style="font-size: 13px; color: #166534; font-weight: 600">+{{r.gain}} in 36 h</span></div>
+<div style="margin-left: auto; text-align: right"><span class="num" style="font-size: 22px; color: #1D4FD8">{{r.fit}}</span><div class="muted" style="font-size: 12px">fit / 100</div></div>
+</div>
+<div class="muted" style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; border-top: 1px solid #EEF0F3; padding-top: 10px"><span>{{r.lang}}</span><span>{{r.age}} old</span><span>{{r.pace}}× normal pace</span><span>Quality <b style="color: #151A22">{{r.quality}}</b></span></div>
+</article>
+</sc-for>
+</section>
+
+<section class="lane">
+<div style="display: flex; align-items: baseline; justify-content: space-between"><h2 style="margin: 0; font-size: 18px">Just discussed</h2><span class="muted" style="font-size: 13px">Hacker News, last 48 h</span></div>
+<sc-for list="{{hn}}" as="r" hint-placeholder-count="3">
+<article class="card">
+<a class="mono" href="Repo.dc.html" style="font-size: 14px; font-weight: 600; overflow-wrap: anywhere">{{r.name}}</a>
+<div style="display: flex; align-items: center; gap: 16px"><span class="num" style="font-size: 18px; color: #B45309">{{r.points}} points</span><span class="muted" style="font-size: 13px">posted {{r.when}}</span></div>
+<div class="muted" style="font-size: 12px; border-top: 1px solid #EEF0F3; padding-top: 10px">{{r.note}}</div>
+</article>
+</sc-for>
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 12px"><h2 style="margin: 0; font-size: 18px">Scouts' picks</h2><span class="muted" style="font-size: 13px">starred by people you trust</span></div>
+<article class="card"><p class="muted" style="margin: 0; font-size: 14px; line-height: 1.5">[Repos starred this week by the developers on your scouts list. Empty until you choose your scouts.]</p></article>
+
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 12px"><h2 style="margin: 0; font-size: 18px">Hidden as fake growth</h2><a href="#fake" style="font-size: 13px">Show all 40</a></div>
+<article class="card" style="border-color: #F3C9C9; background: #FEF6F6">
+<div style="display: flex; align-items: center; gap: 8px"><span class="badge" style="background: #B91C1C; color: #fff">Star farm</span><span class="mono" style="font-size: 14px; font-weight: 600">ai-manus × 12 copies</span></div>
+<p style="margin: 0; font-size: 14px; line-height: 1.45">Twelve accounts hold the same repo with identical star counts: all went 52 → 262 at the same moment. Seven in ten of their stars come with a fork.</p>
+<div class="muted" style="font-size: 12px">Rules that fired: same-name copies · identical growth · fork ratio 0.7</div>
+</article>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1560}}'>
+class Component extends DCLogic {
+renderVals() {
+const T = [0, 0.07, 0.12, 7.2, 16.2, 23.8, 28.1, 36.3];
+const path = (a) => {
+const t = a.length === T.length ? T : a.map((_, i) => i * 36.3 / (a.length - 1));
+const mn = Math.min.apply(null, a), mx = Math.max.apply(null, a), r = (mx - mn) || 1;
+const pts = a.map((v, i) => [(t[i] / 36.3 * 136 + 2).toFixed(1), (36 - (v - mn) / r * 32).toFixed(1)]);
+const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' ');
+return { line: line, area: line + ' L138 40 L2 40 Z' };
+};
+const stage = (s) => s < 100 ? ['Spark', '#FEF3C7', '#7C4A03'] : s < 1000 ? ['Rising', '#DCFCE7', '#14532D'] : ['Large', '#E5E7EB', '#1F2937'];
+const mk = (o) => { const st = stage(o.first); const p = path(o.s); return Object.assign({}, o, p, { stage: st[0], stageBg: st[1], stageFg: st[2], stars: o.s[o.s.length - 1].toLocaleString('en-US'), gain: (o.s[o.s.length - 1] - o.s[0]).toLocaleString('en-US') }); };
+return {
+breaking: [
+{ name: 'basetenlabs/deepseek-ultrafast', first: 65, s: [65, 65, 65, 120, 170, 269, 317, 362], pace: '22.5', lang: 'Rust', age: '17 days', quality: '[n]', desc: '[AI summary: one sentence on what this repo does. GitHub has no description for it.]', note: 'Not on Trending', isNew: true },
+{ name: 'egoist/asuka', first: 23, s: [23, 23, 23, 30, 145, 188, 197, 214], pace: '19.4', lang: 'Go', age: '15 days', quality: '[n]', desc: '[experimental] Cross-platform UI framework using actual OS widgets.', note: 'Not on Trending', isNew: true },
+{ name: 'affifuddin-hazam/ghost-infer', first: 46, s: [46, 46, 46, 71, 166, 209, 230, 234], pace: '16.2', lang: 'Rust', age: '17 days', quality: '[n]', desc: 'Fast local LLM inference for the GPU you already have: one Rust binary, GGUF models.', note: 'Not on Trending', isNew: false },
+{ name: 'RoutineMiku/apkstart', first: 753, s: [753, 756, 758, 1103, 2468, 3346, 3465, 4154], pace: '41.2', lang: 'JavaScript', age: '15 days', quality: '[n]', desc: 'Android app runner for Windows: double-click an APK to install it. (translated from Chinese)', note: 'Not on Trending', isNew: false },
+{ name: 'libracoder/kiri', first: 2109, s: [2109, 2111, 2111, 2241, 2565, 3381, 3640, 4106], pace: '6.8', lang: 'Rust', age: '11 days', quality: '[n]', desc: 'A small, fast container runtime for macOS, Windows and Linux.', note: 'Not on Trending', isNew: false }
+].map(mk),
+foryou: [
+{ name: 'backnotprop/plannotator', first: 10365, s: [10365, 10365, 10366, 10468, 10632, 10898, 11068, 11346], pace: '17.4', fit: '[n]', lang: 'TypeScript', age: '11 months', quality: '[n]', trending: true, desc: 'The workspace to stay in the loop and on top of agents: shape, decide, plan, annotate.', why: '[One sentence from the AI naming the interest it matches, for example: you run coding agents daily and this adds a review step to their plans.]' },
+{ name: 'tailscale/tailcat', first: 9334, s: [9334, 9337, 9339, 9468, 9641, 9786, 9816, 9866], pace: '20.1', fit: '[n]', lang: 'Go', age: '2 years', quality: '[n]', trending: true, desc: "Like netcat, but over Tailscale's data plane, without Tailscale's control plane.", why: '[AI reason, for example: networking and security tooling for infrastructure work.]' },
+{ name: 'GoogleChrome/modern-web-guidance-src', first: 4540, s: [4540, 4549, 4553, 4884, 5248, 5698, 5934, 6288], pace: '56.0', fit: '[n]', lang: 'TypeScript', age: '10 months', quality: '[n]', trending: true, desc: 'Keep your coding agent up to date with the latest web best practices.', why: '[AI reason, for example: guidance files for coding agents, close to your AGENTS.md work.]' }
+].map(mk),
+hn: [
+{ name: 'simpsoka/zigzag', points: 680, when: '12 Nov 18:02', note: 'Not on the watchlist before this post · now tracked' },
+{ name: 'Parcha-ai/agentrun', points: 129, when: '12 Nov 19:15', note: 'Not on the watchlist before this post · now tracked' },
+{ name: 'lonewolf-im/lonewolf', points: 60, when: '13 Nov 15:28', note: 'Release post · now tracked' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

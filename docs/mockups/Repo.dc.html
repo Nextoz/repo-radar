@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Repo page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#F4F5F7;color:#151A22;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#1D4FD8;text-decoration:none}a:hover{color:#163BA3;text-decoration:underline}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.muted{color:#5B6472}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.card{background:#fff;border:1px solid #DDE1E7;border-radius:8px;padding:20px}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:6px;font-size:15px;font-weight:600}
+h2{margin:0 0 12px;font-size:16px}
+.bar{height:8px;border-radius:4px;background:#E5E7EB;overflow:hidden}
+.bar>i{display:block;height:100%;background:#1D4FD8}
+</style>
+</helmet>
+<div style="max-width: 1360px; margin: 0 auto; padding: 0 32px 48px; box-sizing: border-box">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid #DDE1E7">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="#151A22" stroke-width="2"/><circle cx="13" cy="13" r="5" fill="none" stroke="#151A22" stroke-width="2"/><path d="M13 13 L22 6" stroke="#B45309" stroke-width="2.5" stroke-linecap="round"/></svg>
+<span style="font-size: 20px; font-weight: 700">Repo Radar</span>
+</div>
+<nav style="display: flex; gap: 20px; font-size: 15px; flex: 1 1 auto"><a href="Main.dc.html" style="padding: 6px 0">Radar</a><a href="Scoreboard.dc.html" style="padding: 6px 0">Scoreboard</a><a href="#how" style="padding: 6px 0">How it works</a></nav>
+<div class="muted" style="font-size: 13px">Data updated <span class="mono">15 Nov 07:34</span></div>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; padding: 28px 0 20px">
+<div style="flex: 999 1 520px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px"><span class="badge" style="background: #FEF3C7; color: #7C4A03">Spark when flagged</span><span class="badge" style="background: #DCFCE7; color: #14532D">Not on Trending</span></div>
+<h1 class="mono" style="margin: 0 0 8px; font-size: 28px; font-weight: 600; overflow-wrap: anywhere">basetenlabs/deepseek-ultrafast</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.5; max-width: 760px">[AI summary: one or two sentences on what this repo is and who it is for, written from its README. GitHub has no description for this repo.]</p>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<a class="btn" href="Xray.dc.html" style="background: #151A22; color: #fff">Open X-ray</a>
+<a class="btn" href="https://github.com/basetenlabs/deepseek-ultrafast" style="background: #fff; border: 1px solid #CBD1DA; color: #151A22">View on GitHub</a>
+</div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px">
+<div class="card" style="flex: 1 1 180px; padding: 16px"><div class="muted" style="font-size: 13px">Stars now</div><div class="mono" style="font-size: 26px; font-weight: 600">362</div></div>
+<div class="card" style="flex: 1 1 180px; padding: 16px"><div class="muted" style="font-size: 13px">Gained in 36 h</div><div class="mono" style="font-size: 26px; font-weight: 600; color: #166534">+297</div></div>
+<div class="card" style="flex: 1 1 180px; padding: 16px"><div class="muted" style="font-size: 13px">Pace</div><div class="mono" style="font-size: 26px; font-weight: 600; color: #B45309">22.5×</div><div class="muted" style="font-size: 12px">normal: 3.7 stars a day</div></div>
+<div class="card" style="flex: 1 1 180px; padding: 16px"><div class="muted" style="font-size: 13px">Age</div><div class="mono" style="font-size: 26px; font-weight: 600">17 days</div></div>
+<div class="card" style="flex: 1 1 180px; padding: 16px"><div class="muted" style="font-size: 13px">Language</div><div class="mono" style="font-size: 26px; font-weight: 600">Rust</div></div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<div style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section class="card">
+<h2>Stars since first sighting</h2>
+<svg viewBox="0 0 800 300" style="width: 100%; height: auto" role="img" aria-label="Star count from 13 to 15 November: flat at 65 for seven hours, then rising steadily to 362">
+<path d="M60 20 V250 H780" fill="none" stroke="#CBD1DA" stroke-width="1"/>
+<path d="M60 250 H780 M60 173 H780 M60 97 H780 M60 20 H780" stroke="#EEF0F3" stroke-width="1"/>
+<path d="{{area}}" fill="#E8EEFC"/>
+<path d="{{line}}" fill="none" stroke="#1D4FD8" stroke-width="3" stroke-linejoin="round"/>
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="8"><circle cx="{{d.x}}" cy="{{d.y}}" r="4" fill="#1D4FD8"/></sc-for>
+<path d="M381 20 V250" stroke="#B45309" stroke-width="2" stroke-dasharray="6 5"/>
+<circle cx="381" cy="158" r="7" fill="#B45309"/>
+<text x="391" y="38" font-size="14" font-weight="600" fill="#B45309" font-family="IBM Plex Sans, sans-serif">Flagged here: 14 Nov 11:28, at 170 stars</text>
+<text x="52" y="254" font-size="12" text-anchor="end" fill="#5B6472" font-family="IBM Plex Mono, monospace">50</text>
+<text x="52" y="177" font-size="12" text-anchor="end" fill="#5B6472" font-family="IBM Plex Mono, monospace">150</text>
+<text x="52" y="101" font-size="12" text-anchor="end" fill="#5B6472" font-family="IBM Plex Mono, monospace">250</text>
+<text x="52" y="24" font-size="12" text-anchor="end" fill="#5B6472" font-family="IBM Plex Mono, monospace">350</text>
+<text x="60" y="272" font-size="12" fill="#5B6472" font-family="IBM Plex Mono, monospace">13 Nov 19:17</text>
+<text x="420" y="272" font-size="12" text-anchor="middle" fill="#5B6472" font-family="IBM Plex Mono, monospace">14 Nov 12:00</text>
+<text x="780" y="272" font-size="12" text-anchor="end" fill="#5B6472" font-family="IBM Plex Mono, monospace">15 Nov 07:34</text>
+</svg>
+<p class="muted" style="margin: 8px 0 0; font-size: 13px">Each dot is one snapshot. The radar flags a repo when it grows several times faster than its own normal pace on two snapshots in a row.</p>
+</section>
+
+<section class="card">
+<h2>Why it was flagged</h2>
+<ul style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.7">
+<li>Gained <b>297 stars in 36 hours</b>. Before that it averaged 3.7 a day since it was created.</li>
+<li>That is <b>22.5 times</b> its normal pace, on five snapshots in a row.</li>
+<li>Only 5 forks per 100 stars: no sign of copied or bought stars.</li>
+<li>Not on GitHub Trending at any snapshot so far.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>What the AI says</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px"><span class="badge" style="background: #E5E7EB; color: #1F2937">[category]</span><span class="badge" style="background: #E5E7EB; color: #1F2937">[real tool / library / thin wrapper / hype]</span></div>
+<p style="margin: 0 0 10px; font-size: 15px; line-height: 1.55"><b>What is new:</b> [One sentence on what this repo does differently from what exists.]</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.55"><b>Fit for you:</b> [score] · [One sentence naming the interest it matches, or saying it does not match.]</p>
+<p class="muted" style="margin: 12px 0 0; font-size: 13px">Written by Claude from the README. The README is treated as untrusted text: it cannot change the scores. <a href="#how">How this is checked</a></p>
+</section>
+</div>
+
+<aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section class="card">
+<h2>Quality <span class="mono" style="float: right">[n] / 100</span></h2>
+<div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px">
+<div><div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span>Activity</span><span class="mono muted">[n] / 25</span></div><div class="bar"><i style="width: 70%"></i></div></div>
+<div><div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span>People</span><span class="mono muted">[n] / 25</span></div><div class="bar"><i style="width: 45%"></i></div></div>
+<div><div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span>Hygiene: tests, CI, licence</span><span class="mono muted">[n] / 25</span></div><div class="bar"><i style="width: 80%"></i></div></div>
+<div><div style="display: flex; justify-content: space-between; margin-bottom: 4px"><span>Documentation</span><span class="mono muted">[n] / 25</span></div><div class="bar"><i style="width: 60%"></i></div></div>
+</div>
+<p class="muted" style="margin: 12px 0 0; font-size: 13px">Plain arithmetic over public facts. No AI in this number.</p>
+</section>
+<section class="card">
+<h2>Signals</h2>
+<ul style="margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 2">
+<li>Star acceleration <b style="float: right; color: #166534">Yes</b></li>
+<li>Hacker News <b style="float: right" class="muted">Not seen</b></li>
+<li>Starred by your scouts <b style="float: right" class="muted">[n]</b></li>
+<li>GitHub Trending <b style="float: right" class="muted">Not yet</b></li>
+</ul>
+</section>
+<section class="card">
+<h2>Trust</h2>
+<ul style="margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 2">
+<li>Licence <b style="float: right">[licence]</b></li>
+<li>Contributors <b style="float: right">[n]</b></li>
+<li>Install scripts <b style="float: right">[none found]</b></li>
+<li>Hidden instructions for AI <b style="float: right">[none found]</b></li>
+</ul>
+</section>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1320}}'>
+class Component extends DCLogic {
+renderVals() {
+const T = [0, 0.07, 0.12, 7.2, 16.2, 23.8, 28.1, 36.3];
+const S = [65, 65, 65, 120, 170, 269, 317, 362];
+const pts = S.map((v, i) => ({ x: (60 + T[i] / 36.3 * 720).toFixed(1), y: (250 - (v - 50) / 300 * 230).toFixed(1) }));
+const line = pts.map((p, i) => (i ? 'L' : 'M') + p.x + ' ' + p.y).join(' ');
+return { dots: pts, line: line, area: line + ' L780 250 L60 250 Z' };
+}
+}
+</script>
+</body>
+</html>
