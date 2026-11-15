@@ -13,3 +13,4 @@
 | 2026-11-15 | Hourly cron with a skip rule, plus a backup trigger | GitHub started the 3-hourly schedule only 5 times in 36 hours |
 | 2026-11-15 | Growth is a rate over the real interval between snapshots | Intervals were 4 to 9 hours, not 3 |
 | 2026-11-15 | Breakout threshold starts at 5x normal pace | 3x flagged 207 repos on real data, 5x flagged 66 |
+| 2026-11-15 | Radar home page uses layout A: three lanes side by side | Owner's choice from two mockups; general and personal stay visible together |

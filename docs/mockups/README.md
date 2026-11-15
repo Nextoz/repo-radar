@@ -20,4 +20,4 @@ snapshots. Line numbers on the X-ray screen are illustrative.
 The files are sources for a design canvas and do not render on their own in a
 browser. `canvas.json` holds their layout on the canvas.
 
-Open choice: Radar A or Radar B. See `docs/SPEC.md`, WP3.
+Decision (15 Nov 2026): Radar A. Radar B is kept here as the option that was not chosen.

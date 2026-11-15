@@ -800,9 +800,11 @@ design against it.
 **Mockups:** five screens exist as a design canvas (the owner has the link;
 it is private): Radar A (three lanes side by side), Radar B (one ranked table
 with tabs and filters), the repo page, the X-ray page and the scoreboard. They
-use real data from 13-15 Nov. **The owner chooses between Radar A and B before
-WP3 starts**; record the choice in `docs/DECISIONS.md`. The other screens are
-the starting point, not a pixel contract.
+use real data from 13-15 Nov. **The owner chose Radar A (three lanes) on
+15 Nov.** Build the home page from `docs/mockups/Main.dc.html`. Radar B's
+sortable table is not built; its filters (stage, language, not on Trending,
+new since last visit) are kept on Radar A. The other screens are the starting
+point, not a pixel contract.
 
 **Design direction:** this is a tool people scan, not a marketing page. Dense,
 calm, legible. The growth line is the hero of every card. Use the
