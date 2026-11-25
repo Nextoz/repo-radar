@@ -70,20 +70,22 @@ Steps 1-4 and 7-8 are ordinary code. Steps 5 and 6 use Claude. Each step reads f
 | Search: my topics and languages (Bicep, Azure, agents, MCP, security, DevOps) with a lower star bar | Niche repos for the personal lane | Daily |
 | Hacker News: stories linking to github.com | Projects being discussed now, of any age | Hourly |
 | Scouts: recent stars of a hand-picked list of developers | Early and already filtered by taste | Daily |
-| Search: older repos, 50-2,000 stars, pushed recently | Old projects waking up | Daily, added in M2 |
+| Search: established repos, 500+ stars, pushed in the last 7 days | Old projects waking up | Daily; refreshed every run (SPEC WP0) |
 | Trending page | Only used to mark "reached Trending at" | Every run |
+
+Built by the freeze: new repos, established repos and the Trending benchmark. Hacker News, scouts and topic searches are Could (SPEC section 8).
 
 ### 2. Snapshot
 
-Every run stores stars, forks, open issues and last push for each watchlist repo. Repos that stay flat for 14 days drop to a daily check; repos with no growth for 45 days leave the watchlist.
+Every run stores stars, forks and last push for every watched repo: new repos and, since 25 Nov, established ones (500+ stars, active in the last week). See SPEC WP0.
 
 ### 3. Detect: the breakout score
 
 - `gain_24h` and `gain_72h` from snapshots.
 - `baseline` = average daily gain over the 7 days before that.
 - **Acceleration** = `gain_24h ÷ (baseline + k)`, with a minimum gain so that 2 → 6 stars does not count.
-- A repo is a **breakout** when acceleration passes a threshold on two runs in a row.
-- Stages shown on the card: **Spark** (under 100 stars), **Rising** (100-1,000), **Mainstream** (on Trending).
+- A repo is a **breakout** when acceleration stays above a threshold for at least six hours, over two or more snapshots (SPEC 6.3). Runs are hours apart and uneven, so the rule counts hours, not runs.
+- Stages shown on the card: **Spark** (under 100 stars), **Rising** (100-1,000), **Large** (over 1,000), **Mainstream** (has been on Trending).
 
 The constants are tuned on real data after the first week, not guessed now.
 
@@ -99,7 +101,8 @@ Only breakout candidates are sent, so the volume is small (expected 50-150 a day
 
 - Input: metadata, README excerpt and my profile, all marked as untrusted data.
 - Output per repo: one-line summary, category, **substance** (real tool, thin wrapper or hype), what is new about it, **fit** 0-100 with a one-line reason.
-- Model: `claude-haiku-5-5` first; compare with `claude-opus-5-5` on the hand-rated set and keep the cheapest that agrees with me.
+- Model: chosen by measured agreement with my ratings; the cheaper model is kept unless a dearer one is clearly better (SPEC 1.1).
+- The judge learns my taste from my ratings, round by round, and the site shows whether that helped (SPEC WP5b).
 
 ### 6. X-ray
 
@@ -117,7 +120,7 @@ Views on the X-ray page: architecture map, interactive file graph with labelled 
 
 | Page | Content |
 |---|---|
-| **Radar** (home) | Lanes: Breaking out, For you, Just discussed (HN), Scouts' picks. Cards with stage, growth sparkline, Quality and Fit scores, the AI's reason |
+| **Radar** (home) | Lanes: Breaking out and For you by the freeze; Just discussed (HN) and Scouts' picks later. Cards with stage, growth sparkline, Quality and Fit scores, the AI's reason |
 | **Repo page** | Growth chart from first sighting, signals, quality breakdown, why it was flagged, link to its X-ray |
 | **X-ray page** | The views listed above |
 | **Scoreboard** | Lead time and hit rate, with every flagged repo and when it reached Trending |
@@ -140,69 +143,15 @@ A daily GitHub issue in the repo lists the top breakouts. GitHub emails it to me
 
 ## Repository layout
 
-```
-repo-radar/
-  radar/              Python package: discover, snapshot, detect, judge, xray, validate
-  radar/cli.py        radar discover | snapshot | detect | judge | xray | build-data
-  tests/fixtures/     real captured API responses and real parser output
-  site/               Hugo site (layouts, assets, content adapters)
-  profile/            interests.md, scouts.txt
-  .github/workflows/  collect.yml, judge.yml, xray.yml, site.yml, pr-checks.yml
-  docs/               PLAN.md, ITERATIONS.md, DECISIONS.md
-  AGENTS.md           how an agent should work in this repo
-(data branch)         snapshots/, events/, scores/, xray/
-```
+The target layout, the workflows and the data contracts are in [SPEC.md](SPEC.md), sections 4 and 6.
 
 ## Milestones
 
-Each one ends with something that works and is published.
-
-| By | Milestone | Done when |
-|---|---|---|
-| **Sun 15 Nov** | **M0 Collector** | Repo exists; discovery and snapshots run on a schedule; Trending is recorded; three runs in a row finished with exit code 0 and new data files |
-| Fri 20 Nov | M1 Radar live | Hugo site on Pages; Breaking out lane ranked by acceleration; junk filter and quality signals; repo pages with growth chart |
-| Thu 26 Nov | M2 AI ranking | Summaries, substance and fit; For you lane; Hacker News and scouts as sources; daily digest issue; model comparison measured |
-| Thu 3 Dec | M3 X-ray core | Python repos: dependencies, labelled file graph, architecture map, per-connection explanations, validator; X-ray built for the daily top breakouts |
-| Tue 8 Dec | M4 Trust and proof | Trust panel; injection defence with the poisoned repo; Scoreboard page with real lead times |
-| Fri 11 Dec | M5 Freeze | Three well-known repos X-rayed and cached; local CLI demo works with the network off |
-
-**Whole-system review** after M2 and again at M5.
+The dated milestones, the cut line (Must, Should, Could), what is waiting on me and the demo path are in [SPEC.md](SPEC.md), section 8. They were re-planned on 25 Nov 2026, after M1 slipped; the spec is the one place they are kept.
 
 ## Features
 
-**Core (must work by 11 Dec)**
-
-- Wide discovery and frequent snapshots
-- Breakout detection by acceleration, with stages
-- Junk filter and star-inflation flag
-- Quality score and Fit score with reasons
-- General and personal lanes
-- Hacker News and scouts signals
-- Daily digest
-- X-ray for Python: dependencies, labelled connections, architecture map, explanations
-- Validator and rejected-claim count
-- Trust panel and injection defence
-- Scoreboard with lead time
-- "How it works" page
-
-**Next (if time allows)**
-
-- TypeScript/JavaScript X-ray
-- Explanation levels: beginner, developer, architect
-- 👍/👎 on cards that feeds the ranking (through a prefilled issue handled by a workflow)
-- Embeddings: "similar repos" and a pre-filter for fit
-- Function-level view inside a clicked file
-- Search and filters on the Radar (language, category, stage)
-
-**Later (portfolio growth)**
-
-- "Follow a request" animation
-- Compare two repos side by side
-- Weekly written report
-- Topic pages (for example "what is moving in Bicep this month")
-- Release watching for repos I marked as interesting
-- More sources: Lobsters, Reddit, package registries
-- More languages in the X-ray (Go, Rust, C#)
+What must work by the freeze, what comes next and what waits is the Must, Should and Could list in [SPEC.md](SPEC.md), section 8, with the backlog after it. In short: the Radar with Breaking out and For you, live alerts and an honest scoreboard, the judge and the taste loop, the Python X-ray with its validator, and the injection experiment are Must. Hacker News and scouts are Could.
 
 ## Testing
 
@@ -220,8 +169,8 @@ Each one ends with something that works and is published.
 |---|---|
 | GitHub Actions, Pages | Free for a public repo |
 | GitHub API | Well inside the limits found in the spike |
-| Judge, about 100 repos a day on Haiku 5.5 | A few cents a day |
-| X-ray on Opus 5.5 | About $0.40 a repo; two a day is about $25 a month |
+| Judge, about 100 repos a day on a small model | A few cents a day |
+| X-ray on the largest model | About $0.40 a repo; run by hand before the freeze |
 
 The X-ray is the only real cost. The daily number is a setting.
 
@@ -229,18 +178,18 @@ The X-ray is the only real cost. The daily number is a setting.
 
 | Risk | Answer |
 |---|---|
-| Too little data to prove lead time | The collector started on 13 Nov; every week adds evidence |
-| Scope: this is a large product | Milestones are ordered so the product works after each one; the "Next" list is cut first |
-| The breakout threshold produces noise | Tune it on the first week of real data; require two runs in a row |
+| Too little data to prove lead time | Evidence only starts once established repos are watched and the live detector runs (SPEC 2.2, M1a). The scoreboard shows what exists, even zero early alerts |
+| Scope: this is a large product | Milestones are ordered so the product works after each one; Could, then Should, are cut first (SPEC section 8) |
+| The breakout threshold produces noise | Tune it on real data; the breakout must hold for six hours (SPEC 6.3) |
 | Scheduled Actions run late or get paused | Health check on data age; the pipeline also runs from my PC with the same CLI |
-| The data branch grows large | One compressed file per run; old snapshots are thinned to daily |
+| The data branch grows large | One compressed file per run; old snapshots are thinned to daily after the freeze, so every flag shown can be replayed |
 | Star-farmed repos fill the top lane | Inflation flag and the AI substance check |
 | GitHub changes or blocks the Trending page | It is only the benchmark; the Radar does not depend on it |
 
 ## Open decisions
 
 1. **Site address:** the default Pages address or a custom subdomain.
-2. **X-ray budget:** how many automatic X-rays a day (suggested: two).
+2. **X-ray budget:** decided 25 Nov: X-rays run by hand only before the freeze; a daily automatic one is Should.
 3. **Scouts list:** 10-20 developers whose stars are a trusted early signal.
 
 ## How the work continues between sessions
@@ -248,5 +197,5 @@ The X-ray is the only real cost. The daily number is a setting.
 - This file is the plan.
 - `docs/ITERATIONS.md` logs each version: what was tried, what failed, what changed.
 - `docs/DECISIONS.md` records each choice with its reason.
-- One GitHub issue per milestone, with the "done when" line as its checklist.
-- A new session starts by reading `docs/PLAN.md` and the open milestone issue.
+- [SPEC.md](SPEC.md) section 8 holds the milestones, the cut line and what is waiting on me.
+- A new session starts by reading `docs/SPEC.md` sections 1-5 and section 8.

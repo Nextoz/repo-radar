@@ -87,3 +87,47 @@ finds interesting.
   random picks are test data, every profile version is kept, each
   configuration has its own hash, results carry a 90% interval, and the
   numbers at rating time are frozen with each rating.
+
+## v0.3 - The spec refreshed and reviewed twice (25 Nov 2026)
+
+No product code. The spec was brought up to date, then reviewed by two
+independent AI reviewers from different model families (Claude in a fresh
+context, and GPT-6.2-Astra through the Codex command line, read-only). One
+said "ready with fixes", the other "not ready". Their findings overlapped on
+most points.
+
+**Found**
+
+- The order of work lost evidence: watching established repos alone issues
+  no alert. Only a running detector does, and days without one cannot be
+  recovered.
+- The headline claim was stronger than the data can be by the freeze: a
+  14-day hit rate needs alerts 14 days old, the Trending time is a poll
+  hours apart, and only repos that later trend can have a lead time.
+- All writing workflows shared one GitHub concurrency group, where a newer
+  waiting run cancels an older one, so the judge could be skipped silently.
+- The validator checks references, not prose; the spec had claimed more.
+- The X-ray workflow put untrusted code, the model key and a write token in
+  one job.
+- The taste measurement mixed choosing the model with measuring it, and the
+  owner would have rated from the AI's own summary.
+- One count was wrong: 35 runs, not 36.
+
+**Changed**
+
+- A live slice first (26 Nov): established repos and the live detector ship
+  together; detection and the parser start at once.
+- Exact hold rule with replay equal to incremental processing; live alerts
+  and replays kept apart; alerts classed early, ambiguous or late against the
+  Trending polls; a scoreboard built for zero hits.
+- One concurrency group per writer; analysis runs as a second job of the
+  collector; the X-ray workflow split into parse, explain and publish jobs.
+- Prose shown as labelled AI interpretation, with links, markup and unlisted
+  shell commands removed; the agent's tool trace is shown.
+- Round 0 is 50 blind ratings: 20 choose the model, 30 are a frozen test
+  set; the page reports the paired change between rounds and a keyword
+  baseline.
+- The injection experiment runs each attack five times per arm and reports
+  attempts, effects and blocked actions apart; it passes on code boundaries.
+- A Must, Should and Could cut line, firm dates for what waits on the owner,
+  and a four-minute demo path that runs offline without Hugo.
