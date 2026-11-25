@@ -131,3 +131,7 @@ most points.
   attempts, effects and blocked actions apart; it passes on code boundaries.
 - A Must, Should and Could cut line, firm dates for what waits on the owner,
   and a four-minute demo path that runs offline without Hugo.
+- Three mockups were redrawn to match: the Radar with two lanes and an
+  exclusion section, a scoreboard built for zero hits with alerts classed
+  early, ambiguous or late, and an X-ray page that separates parser-verified
+  facts from AI interpretation and shows the agent's tool trace.

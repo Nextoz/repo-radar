@@ -20,6 +20,7 @@ h2{margin:0 0 12px;font-size:16px}
 th{font-size:12px;font-weight:600;color:#5B6472;text-align:left;padding:10px 12px;border-bottom:1px solid #DDE1E7;white-space:nowrap}
 td{padding:11px 12px;border-bottom:1px solid #EEF0F3;font-size:14px;vertical-align:middle}
 .r{text-align:right}
+.big{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:34px;font-weight:600}
 </style>
 </helmet>
 <div style="max-width: 1360px; margin: 0 auto; padding: 0 32px 48px; box-sizing: border-box">
@@ -30,59 +31,118 @@ td{padding:11px 12px;border-bottom:1px solid #EEF0F3;font-size:14px;vertical-ali
 <span style="font-size: 20px; font-weight: 700">Repo Radar</span>
 </div>
 <nav style="display: flex; gap: 20px; font-size: 15px; flex: 1 1 auto"><a href="Main.dc.html" style="padding: 6px 0">Radar</a><a href="Scoreboard.dc.html" style="color: #151A22; font-weight: 600; border-bottom: 2px solid #B45309; padding: 6px 0">Scoreboard</a><a href="#how" style="padding: 6px 0">How it works</a></nav>
-<div class="muted" style="font-size: 13px">Measuring since <span class="mono">13 Nov 2026</span></div>
+<div class="muted" style="font-size: 13px">Live alerts since <span class="mono">[26 Nov 2026]</span> · Trending checked since <span class="mono">13 Nov</span></div>
 </header>
 
 <section style="padding: 28px 0 20px">
 <h1 style="margin: 0 0 8px; font-size: 30px; font-weight: 700; letter-spacing: -0.01em">Does the radar beat GitHub Trending?</h1>
-<p class="muted" style="margin: 0; font-size: 16px; max-width: 780px">Every repo the radar flags is recorded with the time. Every repo that shows up on Trending is recorded too. This page compares the two, including the ones the radar missed.</p>
+<p class="muted" style="margin: 0; font-size: 16px; max-width: 800px">Every live alert is stored with the time it was issued. GitHub Trending is checked on every collector run. This page compares the two, counts the misses, and says plainly what is not known yet.</p>
 </section>
 
-<section style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px">
-<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Median lead over Trending</div><div class="mono" style="font-size: 34px; font-weight: 600">[N days]</div><div class="muted" style="font-size: 13px">from [n] repos that were flagged first</div></div>
-<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Trending repos flagged first</div><div class="mono" style="font-size: 34px; font-weight: 600">[n] of [n]</div><div class="muted" style="font-size: 13px">the radar's hit rate against Trending</div></div>
-<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Flagged repos that kept growing</div><div class="mono" style="font-size: 34px; font-weight: 600">[n %]</div><div class="muted" style="font-size: 13px">still above normal pace 7 days later</div></div>
-<div class="card" style="flex: 1 1 240px; border-color: #F3C9C9; background: #FEF6F6"><div class="muted" style="font-size: 13px">Missed</div><div class="mono" style="font-size: 34px; font-weight: 600; color: #B91C1C">19 of 19</div><div class="muted" style="font-size: 13px">Trending repos in the first two days. See why below.</div></div>
+<section style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px">
+<div class="card" style="flex: 1 1 240px; border-color: #F3C9C9; background: #FEF6F6"><div class="muted" style="font-size: 13px">Trending repos watched beforehand</div><div class="big" style="color: #B91C1C">0 of 50</div><div class="muted" style="font-size: 13px">13-25 Nov, before established repos were watched. Counted again from [26 Nov].</div></div>
+<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Live alerts</div><div class="big">[n]</div><div class="muted" style="font-size: 13px">early [n] · ambiguous [n] · late [n] · not on Trending yet [n]</div></div>
+<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Lead time of early alerts</div><div class="mono" style="font-size: 22px; font-weight: 600; padding: 7px 0">No early alert yet</div><div class="muted" style="font-size: 13px">A median appears from 5 early alerts. Until then each one is shown as a timeline below.</div></div>
+<div class="card" style="flex: 1 1 240px"><div class="muted" style="font-size: 13px">Reached Trending within 14 days</div><div class="big">[n] pending</div><div class="muted" style="font-size: 13px">Only alerts at least 14 days old count. Alerts issued after 27 Nov cannot mature before 11 Dec.</div></div>
+</section>
+
+<section class="card" style="background: #F6F8FE; border-color: #D6E0FA; margin-bottom: 20px">
+<h2>How to read these numbers</h2>
+<ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 4px">
+<li><b>Only repos that later reach Trending can have a lead time.</b> An alert for a repo that never trends is not a failure, just unknown.</li>
+<li><b>Trending is checked hours apart.</b> A lead time is known only to within one gap between checks, so it is shown as a range.</li>
+<li><b>Young histories are weaker.</b> Repos watched for less than 7 days are compared with their lifetime average. Results for the two kinds are shown apart.</li>
+<li><b>Replays are not evidence.</b> Flags computed afterwards from old snapshots are listed separately and never count.</li>
+</ul>
 </section>
 
 <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
 
-<section class="card" style="flex: 999 1 620px; min-width: 0; padding: 0">
-<div style="padding: 20px 20px 4px"><h2>Flagged by the radar</h2></div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section class="card">
+<h2>Early alerts, one by one</h2>
+<p style="margin: 0 0 16px; font-size: 14px; line-height: 1.55">No live alert has reached Trending yet. When one does, it appears here as a timeline like this <span class="muted">[example]</span>:</p>
+<div style="border: 1px solid #EEF0F3; border-radius: 8px; padding: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 12px"><span class="mono" style="font-weight: 600">[owner/repo]</span><span class="badge" style="background: #DCFCE7; color: #14532D">Early</span><span style="margin-left: auto; font-size: 14px">Lead time <b class="mono">[2.2 days]</b> <span class="muted">(± [9.5 h])</span></span></div>
+<svg viewBox="0 0 800 40" width="100%" height="40" preserveAspectRatio="none" aria-hidden="true"><line x1="10" y1="20" x2="790" y2="20" stroke="#CBD1DA" stroke-width="2"/><rect x="560" y="12" width="200" height="16" rx="3" fill="#FEF3C7"/><circle cx="40" cy="20" r="8" fill="#1D4FD8"/><circle cx="560" cy="20" r="6" fill="#fff" stroke="#5B6472" stroke-width="2"/><circle cx="760" cy="20" r="8" fill="#166534"/></svg>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; font-size: 13px; line-height: 1.4; margin-top: 6px">
+<div><b>Alert issued</b><br><span class="mono">[27 Nov 14:05]</span><br><span class="muted">Rising · [412] stars · 7-day baseline</span></div>
+<div style="text-align: center"><b>Last check without it</b><br><span class="mono">[29 Nov 09:12]</span></div>
+<div style="text-align: right"><b>First check with it</b><br><span class="mono">[29 Nov 18:40]</span><br><span class="muted">it appeared somewhere in the shaded gap</span></div>
+</div>
+</div>
+</section>
+
+<section class="card" style="padding: 0">
+<div style="padding: 20px 20px 4px"><h2>Live alerts</h2></div>
 <div style="overflow-x: auto">
-<table style="border-collapse: collapse; width: 100%; min-width: 640px">
-<thead><tr><th>Repository</th><th>Flagged</th><th class="r">Stars then</th><th class="r">Stars now</th><th>Reached Trending</th><th class="r">Lead</th></tr></thead>
+<table style="border-collapse: collapse; width: 100%; min-width: 760px">
+<thead><tr><th>Repository</th><th>Issued</th><th>Stage, stars then</th><th>Baseline</th><th>Result</th><th class="r">Stars now</th><th>Excluded</th></tr></thead>
 <tbody>
-<sc-for list="{{flagged}}" as="f" hint-placeholder-count="6">
-<tr><td><a class="mono" href="Repo.dc.html" style="font-weight: 600; overflow-wrap: anywhere">{{f.name}}</a></td><td class="mono">{{f.when}}</td><td class="r mono">{{f.then}}</td><td class="r mono" style="font-weight: 600">{{f.now}}</td><td><span class="badge" style="background: #F3F4F6; color: #5B6472">Not yet</span></td><td class="r mono muted">running</td></tr>
+<sc-for list="{{live}}" as="f" hint-placeholder-count="5">
+<tr><td><a class="mono" href="Repo.dc.html" style="font-weight: 600; overflow-wrap: anywhere">{{f.name}}</a></td><td class="mono">{{f.when}}</td><td>{{f.stage}} · <span class="mono">{{f.then}}</span></td><td>{{f.base}}</td><td><span class="badge" style="background: {{f.bg}}; color: {{f.fg}}">{{f.result}}</span></td><td class="r mono" style="font-weight: 600">{{f.now}}</td><td class="muted" style="font-size: 13px">{{f.excl}}</td></tr>
 </sc-for>
 </tbody>
 </table>
 </div>
-<p class="muted" style="font-size: 13px; padding: 12px 20px 16px; margin: 0">Flag times here are what the rule would have produced on real snapshots. When a repo reaches Trending, its row shows the date and the lead in days.</p>
+<p class="muted" style="font-size: 13px; padding: 12px 20px 16px; margin: 0; line-height: 1.5"><b style="color: #151A22">Early:</b> issued before the last check that did not show the repo on Trending. <b style="color: #151A22">Ambiguous:</b> issued between that check and the first one that did. <b style="color: #151A22">Late:</b> issued after it was already on Trending. Before the first alert this table reads "No live alerts yet. The live detector starts on [26 Nov]."</p>
 </section>
+
+<section class="card" style="padding: 0">
+<div style="padding: 20px 20px 4px"><h2 style="margin-bottom: 6px">Replayed from old snapshots <span class="badge" style="background: #F3F4F6; color: #5B6472; vertical-align: middle">Not evidence</span></h2>
+<p class="muted" style="margin: 0 0 8px; font-size: 13px; line-height: 1.5">What the planned rule found when it was run afterwards on snapshots from 13-15 Nov. It shows how the rule behaves; nobody could have seen these alerts at the time, so they never count toward lead time.</p></div>
+<div style="overflow-x: auto">
+<table style="border-collapse: collapse; width: 100%; min-width: 560px">
+<thead><tr><th>Repository</th><th>Signal in the replay</th><th class="r">Stars then</th><th class="r">Stars on 15 Nov</th></tr></thead>
+<tbody>
+<sc-for list="{{replay}}" as="f" hint-placeholder-count="6">
+<tr><td class="mono" style="overflow-wrap: anywhere">{{f.name}}</td><td class="mono muted">{{f.when}}</td><td class="r mono">{{f.then}}</td><td class="r mono">{{f.now}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="height: 12px"></div>
+</section>
+
+</div>
 
 <section class="card" style="flex: 1 1 380px; min-width: 0">
 <h2>Missed, and why</h2>
-<p style="margin: 0 0 12px; font-size: 14px; line-height: 1.55">All 19 repos seen on Trending so far were <b>older than 30 days</b>, between 65 days and 5 years old. The first version of the radar only watched repos created in the last 30 days, so it could not see them coming.</p>
+<p style="margin: 0 0 12px; font-size: 14px; line-height: 1.55">From 13 to 25 Nov, <b>50 repos</b> appeared on Trending. <b>None was watched beforehand</b>, because the first version only watched repos younger than 30 days. 41 of the 50 had 500+ stars and a push in the last week when they appeared, which is the kind of repo the watchlist now covers.</p>
 <table style="border-collapse: collapse; width: 100%">
 <thead><tr><th>On Trending</th><th class="r">Age</th><th class="r">Stars</th></tr></thead>
 <tbody>
-<sc-for list="{{missed}}" as="m" hint-placeholder-count="6">
+<sc-for list="{{missed}}" as="m" hint-placeholder-count="7">
 <tr><td class="mono" style="font-size: 13px; overflow-wrap: anywhere">{{m.name}}</td><td class="r mono" style="font-size: 13px">{{m.age}}</td><td class="r mono" style="font-size: 13px">{{m.stars}}</td></tr>
 </sc-for>
 </tbody>
 </table>
-<div style="background: #F6F8FE; border-radius: 6px; padding: 12px 14px; font-size: 14px; line-height: 1.5; margin-top: 14px"><b>What changed because of this:</b> the watchlist now also covers about 25,000 established repos with recent activity. This table is how that gap was found.</div>
+<p class="muted" style="margin: 10px 0 0; font-size: 13px">Reason for all: not on the watchlist. 7 of 50 shown.</p>
+<div style="background: #F6F8FE; border-radius: 6px; padding: 12px 14px; font-size: 14px; line-height: 1.5; margin-top: 14px">From [26 Nov] each miss gets its own reason: <b>not on the watchlist</b>, <b>growth too slow</b> to trigger an alert, or <b>alerted late</b>.</div>
 </section>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1120}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1900}}'>
 class Component extends DCLogic {
 renderVals() {
+const cls = {
+early: ['Early', '#DCFCE7', '#14532D'],
+ambiguous: ['Ambiguous', '#FEF3C7', '#7C4A03'],
+late: ['Late', '#FDE2E2', '#991B1B'],
+pending: ['Not on Trending yet', '#F3F4F6', '#5B6472']
+};
+const mk = (o) => { const c = cls[o.c]; return Object.assign({}, o, { result: c[0], bg: c[1], fg: c[2] }); };
 return {
-flagged: [
+live: [
+{ name: '[owner/repo]', when: '[27 Nov 14:05]', stage: 'Rising', then: '[412]', base: '7 days', c: 'early', now: '[1,830]', excl: 'No' },
+{ name: '[owner/repo]', when: '[28 Nov 02:10]', stage: 'Large', then: '[5,120]', base: 'lifetime', c: 'ambiguous', now: '[7,904]', excl: 'No' },
+{ name: '[owner/repo]', when: '[28 Nov 11:40]', stage: 'Large', then: '[18,300]', base: 'lifetime', c: 'late', now: '[19,050]', excl: 'No' },
+{ name: '[owner/repo]', when: '[29 Nov 06:15]', stage: 'Spark', then: '[64]', base: 'lifetime', c: 'pending', now: '[290]', excl: 'No' },
+{ name: '[owner/repo]', when: '[29 Nov 08:30]', stage: 'Rising', then: '[230]', base: '7 days', c: 'pending', now: '[260]', excl: 'Same-name cluster' }
+].map(mk),
+replay: [
 { name: 'RoutineMiku/apkstart', when: '14 Nov 11:28', then: '2,468', now: '4,154' },
 { name: 'libracoder/kiri', when: '14 Nov 19:03', then: '3,381', now: '4,106' },
 { name: 'basetenlabs/deepseek-ultrafast', when: '14 Nov 11:28', then: '170', now: '362' },

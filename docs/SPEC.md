@@ -1071,15 +1071,12 @@ design against it.
 - Empty states designed, not accidental: no breakouts yet, no history yet.
 
 **Mockups:** five screens exist as a design canvas (the owner has the link;
-it is private): Radar A (three lanes side by side), Radar B (one ranked table
-with tabs and filters), the repo page, the X-ray page and the scoreboard. They
-use real data from 13-15 Nov. **The owner chose Radar A (three lanes) on
-15 Nov.** Build the home page from `docs/mockups/Main.dc.html`, with two
-lanes for the freeze (Breaking out, For you; the third needs WP4) and the
-heading "Excluded by growth heuristics" where the mockup says "Hidden as fake
-growth". Radar B's
-sortable table is not built; its filters (stage, language, not on Trending,
-new since last visit) are kept on Radar A. The other screens are the starting
+it is private), with their sources in `docs/mockups/`: Radar A, Radar B (not
+chosen), the repo page, the X-ray page and the scoreboard. They use real data
+from 13-25 Nov. **The owner chose Radar A on 15 Nov.** Radar A, the X-ray page
+and the scoreboard were redrawn on 25 Nov to match this spec: build the home
+page from `docs/mockups/Main.dc.html` (two lanes, "Excluded by growth
+heuristics", the "Many forks" caution). The other screens are the starting
 point, not a pixel contract.
 
 **Design direction:** this is a tool people scan, not a marketing page. Dense,
