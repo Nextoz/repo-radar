@@ -15,7 +15,9 @@ running and the contracts it names in section 6.
 Repo Radar is an early-warning system for open source. A scheduled pipeline
 counts stars on thousands of young repositories every three hours, detects the
 ones whose growth just accelerated, and has Claude judge which are real and
-which matter to the owner. For the best of them it builds an X-ray: a parsed
+which matter to the owner. The judge learns the owner's taste from their
+ratings, round by round, and measures whether it got better. For the best of
+them it builds an X-ray: a parsed
 dependency graph, labelled with the functions and classes that connect the
 files, explained by Claude and checked by code. Everything is published as a
 static Hugo site on GitHub Pages. A scoreboard proves the claim: how many days
@@ -113,7 +115,8 @@ optional style.
 7. **Secrets** come from the environment only. Never printed, logged, written
    to a file, put in a URL, or passed to a model.
 8. **The data branch is append-only.** New files and appended lines. No
-   rewriting history, no data on `main`. The one planned exception is
+   rewriting history, no data on `main` (except the owner's taste files,
+   6.10). The one planned exception is
    thinning old snapshots (WP12), which deletes whole files in one commit.
 9. **Standard library only in `radar/`**, except the modules named in
    section 4.3. Each new dependency needs a line in `docs/DECISIONS.md`.
@@ -167,6 +170,7 @@ radar/
   detect.py            growth, acceleration, stages, flags
   enrich.py            details for candidate repos
   quality.py           junk filter, inflation, quality score
+  taste.py             rating batches, learning rounds, the test split
   ai/
     client.py          the only module that talks to the model API
     judge.py           summary, substance, fit
@@ -182,7 +186,7 @@ radar/
   sitedata.py          builds site/data from the data branch
   digest.py            daily digest text
 site/                  Hugo project
-profile/               interests.md, scouts.txt
+profile/               interests.md, scouts.txt, ratings.jsonl
 tests/                 one test module per radar module, fixtures/
 scripts/               capture scripts, one-off analysis
 .github/workflows/     collect.yml (exists), analyse.yml, xray.yml, site.yml, checks.yml (exists)
@@ -269,7 +273,7 @@ then starts the builders.
 | Phase | In parallel | Then |
 |---|---|---|
 | M1 | WP0 (watchlist, schedule) first and alone. Then WP1 (detect) and WP2 (enrich, quality) | WP3 (site), on their real output |
-| M2 | WP4 (signals) and WP5 (judge); WP7 (parser) can start now, it touches nothing else | WP6 (digest, health) |
+| M2 | WP4 (signals) and WP5 (judge); WP7 (parser) can start now, it touches nothing else | WP5b (taste loop) after WP5; WP6 (digest, health) |
 | M3 | WP8 (agent, validator) after WP7 | WP9 (X-ray pages), on real X-ray files |
 | M4 | WP10 (trust, injection) and WP11 (scoreboard, how-it-works) | |
 | M5 | WP12 (freeze) | |
@@ -324,6 +328,8 @@ Ask at the start, in one message, and record the answer in
    handles the key).
 4. Installing Hugo on the owner's PC for local preview.
 5. The daily budget numbers in `radar/config.py` (section 6.9).
+6. Commits from the owner's PC to `main` for ratings and approved profile
+   versions (6.10), made by the owner's own `rate` and `taste` runs.
 
 Anything outward-facing beyond these (a custom domain, posting about the
 project, publishing a poisoned test repository) is asked separately.
@@ -456,8 +462,8 @@ judge/runs.jsonl            one line per run: calls, tokens in/out, cost estimat
 ```json
 {
   "id": "R_kgDO...", "name": "owner/repo", "judged_at": "...",
-  "model": "<exact model id used>", "prompt_version": 3,
-  "input_sha256": "<hash of README excerpt + description + profile version>",
+  "model": "<exact model id used>", "prompt_version": 3, "taste_round": 2, "config_sha256": "...",
+  "input_sha256": "<hash of README excerpt + description + config_sha256 (6.10)>",
   "summary": "One sentence, at most 160 characters.",
   "category": "developer-tool",
   "substance": "real-tool",
@@ -588,9 +594,12 @@ keeps the ranking logic in Python, where it is tested, and the templates dumb.
 ```
 profile/interests.md     plain text: interests and current work. No personal data
 profile/scouts.txt       one GitHub login per line, "#" for comments
+profile/ratings.jsonl    the owner's ratings (6.10). Public like the rest of the repo
 ```
 
-`interests.md` carries a `version: N` line. Raising it re-judges everything.
+`interests.md` carries a `version: N` line. Raising it re-judges the current
+candidates (those in `detect/latest.json`), not the whole history, within
+`JUDGE_PER_DAY` and the budget.
 
 ### 6.9 Config (starting values, tuned on real data in WP1)
 
@@ -615,7 +624,90 @@ XRAY_MAX_FILES = 2000
 XRAY_MAX_BYTES = 30_000_000
 XRAY_MAX_FILE_BYTES = 400_000
 XRAY_AGENT_MAX_TOOL_CALLS = 40
+TASTE_BATCH = 20             # repos offered for rating per round
+TASTE_RANDOM_PER_BATCH = 6   # random picks per round; they become the test set
+TASTE_MIN_TRAIN = 10         # new train ratings needed before a learning round
+TASTE_EXAMPLES = 8           # rated repos shown to the judge as examples (half high, half low)
 ```
+
+### 6.10 Taste (WP5b)
+
+The owner's ratings, and what the judge learned from them. All taste files are
+produced on the owner's PC by commands only the owner runs, so they live on
+`main` and are reviewed like code. This is the one exception to "no data on
+`main`" in rule 8; no workflow writes them.
+
+```
+profile/ratings.jsonl              append-only, one line per rating
+profile/interests.proposed.md      the model's proposed next profile; never read by the judge
+profile/versions/interests.vN.md   a copy of every approved profile version
+taste/rounds.jsonl                 append-only: one line per approved learning round
+taste/judgements.jsonl             append-only: evaluation judgements, keyed by repo and config
+taste/eval.jsonl                   append-only: one line per evaluation run
+```
+
+`profile/ratings.jsonl`:
+
+```json
+{"ts": "...", "id": "R_kgDO...", "name": "owner/repo", "rating": 4,
+ "why": "optional, one line, the owner's words", "round": 1,
+ "split": "train", "picked_by": "uncertain",
+ "at_rating": {"stars": 412, "gain_24h": 260, "acceleration": 9.7, "fit": 48}}
+```
+
+- `rating` is 1-5 for "would I want to know about this". `why` may be empty.
+- `picked_by` is how the repo was chosen: `high-fit`, `low-fit`, `uncertain`
+  or `random` (WP5b).
+- **`split` follows `picked_by`, and is fixed when the line is written.**
+  `random` picks are `test`; every other pick is `train`. Round 0 is 30
+  random picks, so all `test`. This keeps the test set a random sample of
+  the candidates, not a set the judge chose.
+- `at_rating` freezes the numbers at the moment of rating, so baselines are
+  measured with what was known then, not with later growth. `fit` is
+  recorded but **never shown to the owner** while rating.
+- A skipped repo writes no line. A repo rated twice keeps both lines;
+  readers use the newest, and a re-rating never changes the `split`.
+
+`taste/rounds.jsonl`:
+
+```json
+{"round": 2, "at": "...", "profile_version": 3, "train_ratings": 38,
+ "config_sha256": "<hash of profile text + example block + prompt_version + model>",
+ "examples": [{"id": "R_kgDO...", "name": "owner/repo", "rating": 5, "why": "...",
+               "description": "the text shown to the judge"}],
+ "learned": ["One line per change the model made to the profile"],
+ "model": "<id>", "usage": {"input_tokens": 0, "output_tokens": 0}}
+```
+
+The example text is stored in full so a round can be re-run exactly, even if
+a rating is later changed.
+
+`taste/eval.jsonl`:
+
+```json
+{"at": "...", "model": "<id>", "test_ratings": 48,
+ "test_ids_sha256": "<hash of the sorted test ids>",
+ "by_round": {"0": {"spearman": 0.31, "ci90": [0.05, 0.53], "top10_hit": 0.4},
+              "2": {"spearman": 0.52, "ci90": [0.29, 0.70], "top10_hit": 0.7}},
+ "baselines": {"stars": {"spearman": 0.08, "ci90": [-0.18, 0.33]},
+               "acceleration": {"spearman": 0.11, "ci90": [-0.15, 0.36]}}}
+```
+
+- Every evaluation run scores **every recorded round** on the **same current
+  test set**, so rounds are compared on equal terms inside one line. Lines
+  are compared with each other only when `test_ids_sha256` is equal. The
+  chart uses the newest line.
+- `spearman`: rank correlation between `fit` and the owner's rating, ties
+  given their average rank. `ci90`: a 90% bootstrap interval (1,000
+  resamples of the test set, fixed seed). `top10_hit`: share of the ten
+  highest-fit test repos the owner rated 4 or 5, ties broken by id.
+- `baselines` rank the same test set by `at_rating.stars` and
+  `at_rating.acceleration`, Spearman only. Round 0 (profile only, no
+  examples) is the AI baseline. Together they show what the AI adds and what
+  the learning adds.
+- Evaluation judgements go to `taste/judgements.jsonl`, keyed by
+  `(id, config_sha256)`, never into `judge/`, which holds only the live
+  configuration. A key already present is not judged again.
 
 ---
 
@@ -879,8 +971,9 @@ stable prompt part works and what it saves.
   `AI_DAILY_BUDGET_USD`. A stop is a normal, logged outcome, not an error.
 - Cache by `input_sha256`. A second run on unchanged data makes zero calls.
 - **Evaluation:** `scripts/eval_judge.py` scores the judge against the owner's
-  hand ratings (about 30 repos, in `tests/fixtures/judge/ratings.jsonl`) and
-  reports agreement for each model tried. The cheapest model that agrees well
+  hand ratings (about 30 repos, round 0 in `profile/ratings.jsonl`, all in the
+  `test` split) with the measures in 6.10, and reports agreement for each
+  model tried. The cheapest model that agrees well
   enough is chosen, and the comparison goes into `docs/DECISIONS.md` with the
   numbers.
 - The For you lane ranks by fit, with a lower popularity bar than Breaking out.
@@ -892,6 +985,106 @@ repos rated 1-5 for "would I want to know about this".
 (a recorded day at the limit makes no call); the injection fixture from WP10's
 poisoned README (or a first version of it) does not change the fit score; the
 model comparison is written down.
+
+### WP5b - Taste loop: learn from the owner's ratings  (M2, after WP5)
+
+**Goal:** the For you lane learns the owner's taste from their ratings, round
+by round, and the site shows honestly, with its uncertainty, whether each
+round helped.
+
+**Owns:** `radar/taste.py`, `tests/test_taste.py`, the `rate` and `taste`
+subcommands, `profile/versions/`, `taste/`, the taste additions to
+`radar/ai/judge.py` and `scripts/eval_judge.py` (WP5 is merged first; no
+builder holds them at the same time), and a minimal poisoned README fixture
+if WP10's does not exist yet.
+**Reads:** 6.3, 6.4, 6.5, 6.8. **Writes:** 6.10, and new profile versions
+through the owner's approval.
+
+**Spike first:** run round 0 for real. `rate --round 0` offers 30 random
+judged candidates; the owner rates them; `eval_judge.py` writes the first
+`taste/eval.jsonl` line. Record where the judge and the owner disagree most
+and read the reasons. If round 0's `ci90` lower bound is already above 0.6,
+report that before building more: the loop may not be worth its cost.
+
+**One round:**
+
+1. **Pick** (`python -m radar rate`): offer `TASTE_BATCH` (20) candidates
+   that are judged under the live configuration and not yet rated: 4 with
+   the highest fit, 4 with the lowest, 6 with fit nearest 50 (the judge is
+   least sure; these teach the most per rating, which is active learning),
+   and `TASTE_RANDOM_PER_BATCH` (6) at random. Random picks become `test`,
+   the rest `train` (6.10). With fewer candidates than that, fill from
+   random and say so.
+2. **Rate** in the terminal: one card at a time (name, AI summary, language,
+   stars, gain, link; **not** the fit score, which would anchor the rating),
+   keys 1-5, `s` to skip, an optional one-line why. Each rating is appended
+   at once, so an interrupted session keeps what was rated.
+3. **Learn** (`python -m radar taste learn`): one model call reads the
+   current profile and all `train` ratings with their whys, and writes
+   `profile/interests.proposed.md` plus a list of what it changed and why
+   ("rates Azure CLI tools high: added 'Azure developer tooling'"). It sees
+   **no `test` rating**. Round 0's ratings are all `test`: they are the
+   fixed yardstick, so learning starts at round 1. With fewer than
+   `TASTE_MIN_TRAIN` (10) train ratings not yet used in a round, it refuses
+   with a message; the ratings stay and count toward the next round. The
+   proposal may not contain personal data; the owner's review is the check,
+   and code rejects a proposal that contains an e-mail address or a URL
+   outside github.com.
+4. **Approve** (`python -m radar taste approve`): shows the diff between
+   `interests.md` and the proposal and asks yes or no. On yes it replaces
+   `interests.md`, raises `version`, saves `profile/versions/interests.vN.md`
+   and appends the round to `taste/rounds.jsonl` with its examples in full.
+   On no it deletes the proposal. Only the owner runs it; no workflow
+   applies a proposal. If the owner rejects every change, the round is still
+   recorded, with `"learned": []` and the examples alone.
+5. **Examples:** the judge's stable prompt part gains `TASTE_EXAMPLES` (8)
+   `train` repos: up to half rated 4-5 and half rated 1-2, spread over
+   categories, filled from the other side when one side is short (the count
+   is recorded). Each sits as a short data block (name, description, rating,
+   why) **inside** the untrusted data block (rule 5), and in the cached part
+   of the prompt. The example block, the profile text, `prompt_version` and
+   the model make up `config_sha256`, which is part of `input_sha256` (6.5),
+   so a new configuration never reuses an old judgement.
+6. **Measure:** `eval_judge.py` scores every round on the current test set
+   (6.10). Evaluation calls go through the same budget guard as the judge
+   (`AI_DAILY_BUDGET_USD`) but not `JUDGE_PER_DAY`; when the budget stops
+   it, the run is written as partial and resumes from
+   `taste/judgements.jsonl` next time.
+
+**Must:**
+
+- No `test` rating ever reaches a prompt: not as an example, not in the
+  learning call. Enforced in code at the one place prompts are built, and
+  tested.
+- Every round can be re-run exactly from `profile/versions/` and
+  `taste/rounds.jsonl`.
+- The How-it-works page shows agreement by round as points with their 90%
+  intervals, next to the stars and acceleration baselines, with the size of
+  the test set. If learning does not help, or the intervals overlap, the
+  page says so in words.
+- The For you card shows the one-line `fit_reason`.
+
+**Needs from the owner:** round 0 (30 ratings, the same ones WP5 needs), then
+at least three rounds of 20 ratings, about ten minutes each, at least two
+days apart so the candidates differ. The test set then holds about 48 repos;
+the interval will be wide, and the page must not claim more than it shows.
+
+**Done when:**
+
+- At least three rounds are in `taste/rounds.jsonl`, each with a non-empty
+  `examples` list and a new profile version or an explicit `"learned": []`.
+- The newest `taste/eval.jsonl` line scores every round and both baselines on
+  one test set, with `test_ratings`, `spearman`, `ci90` and `top10_hit` filled
+  for each, whatever the result.
+- Tests prove: a `test` rating cannot enter a prompt; a rating's split never
+  changes, also on re-rating; a proposal with an e-mail address is rejected;
+  two configurations that differ only in their examples get different
+  `config_sha256`; the Spearman function gives the textbook answer on a
+  small case with ties; example text is placed inside the data block (a
+  deterministic check on the built prompt, not on a model answer).
+- The poisoned README used as a rated example: the report records the fit
+  of ten named repos in two runs without it (the normal spread) and one run
+  with it, and the change with it is no larger than that spread.
 
 ### WP6 - Digest and pipeline health  (M2)
 
@@ -1100,8 +1293,9 @@ approval. The local fixture is enough for the tests.
 
 1. TypeScript and JavaScript in the X-ray (a real parser, by decision).
 2. Explanation levels: beginner, developer, architect.
-3. Feedback: thumbs on cards through a prefilled issue, handled by a workflow
-   for the owner only, feeding the fit ranking.
+3. Rating from the site: thumbs on cards through a prefilled issue, handled
+   by a workflow for the owner only, writing to `profile/ratings.jsonl` (the
+   terminal rating in WP5b comes first).
 4. Embeddings: similar repositories and a pre-filter before the judge.
 5. Function-level view inside a file.
 6. "Follow a request": an animated path through the code.
@@ -1117,7 +1311,7 @@ approval. The local fixture is enough for the tests.
 |---|---|---|---|
 | 13 Nov | M0 Collector | done | Runs green, data on the branch. First findings in 2.1 |
 | 20 Nov | M1 Radar live | WP0, WP1, WP2, WP3 | Public URL shows real breakouts; established repos are on the watchlist |
-| 26 Nov | M2 AI ranking | WP4, WP5, WP6, R1 | For you lane, digest in the inbox, model comparison |
+| 26 Nov | M2 AI ranking | WP4, WP5, WP5b, WP6, R1 | For you lane, digest in the inbox, model comparison, taste rounds measured |
 | 3 Dec | M3 X-ray | WP7, WP8, WP9 | Three real X-rays the owner judged correct |
 | 8 Dec | M4 Trust and proof | WP10, WP11 | Attack shown with and without defence; scoreboard with real lead times |
 | 11 Dec | M5 Freeze | R2, WP12 | Offline demo rehearsed |

@@ -14,3 +14,5 @@
 | 2026-11-15 | Growth is a rate over the real interval between snapshots | Intervals were 4 to 9 hours, not 3 |
 | 2026-11-15 | Breakout threshold starts at 5x normal pace | 3x flagged 207 repos on real data, 5x flagged 66 |
 | 2026-11-15 | Radar home page uses layout A: three lanes side by side | Owner's choice from two mockups; general and personal stay visible together |
+| 2026-11-25 | Add a taste loop (WP5b): the judge learns from the owner's ratings, measured round by round | Owner's choice of three options (taste loop, trained breakout predictor, research agent); it serves "find what is interesting to me" directly and reuses the judge |
+| 2026-11-25 | Only randomly picked ratings are test data; results carry a 90% interval | The judge's own picks would bias the test set; about 48 test ratings are too few for a point estimate alone |

@@ -58,3 +58,32 @@ No product code. Two days of snapshots were analysed before planning further.
 - Detection is specified as a rate over the real interval between snapshots.
 - Two inflation rules were added from the data.
 - Five screen mockups were made from the real data (`docs/mockups/`).
+
+## v0.2 - The taste loop, designed (25 Nov 2026)
+
+No product code. The spec gained a way for the judge to learn what the owner
+finds interesting.
+
+**Found**
+
+- After 12 days, 50 different repos had appeared on Trending and none of them
+  was on the watchlist beforehand. Watching established repos (WP0) is still
+  the first thing to build.
+- The scheduled collector ran with a median gap of 8.7 hours.
+- The owner's GitHub account has almost no stars, so taste cannot be read
+  from it. It has to come from ratings.
+
+**Changed**
+
+- New work package WP5b and contract 6.10: the owner rates batches of 20
+  repos; the model proposes a new taste profile from the ratings; the owner
+  approves it; rated repos become examples for the judge; each round is
+  measured.
+- An independent review of the design found 12 problems before any code was
+  written. The main ones: a test set partly chosen by the judge itself, old
+  profiles that could not be recovered, a cache key that ignored the
+  examples, too few test ratings to claim a trend without a range, and
+  baselines measured with later star counts. All were fixed in the spec: only
+  random picks are test data, every profile version is kept, each
+  configuration has its own hash, results carry a 90% interval, and the
+  numbers at rating time are frozen with each rating.
